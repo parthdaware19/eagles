@@ -1,91 +1,109 @@
-# eagles
-WORLDSIM
-Technical Overview
-WorldSim is a multi-agent reinforcement learning simulation that models resource-constrained geopolitical dynamics. Each region operates as an autonomous AI agent that learns optimal strategies for survival, trade, alliance formation, expansion, and conflict.
+# WorldSim — Adaptive Resource Scarcity Simulator
 
-Core Architecture
-Environment Layer
+## Overview
 
-Finite resources: water, food, energy, land
+WorldSim is a multi-region simulation engine where each region has limited resources:
 
-Climate events and natural depletion
+- Water
+- Food
+- Energy
+- Land
 
-Trust-based diplomacy network
+Each region is controlled by a Q-learning based AI agent.  
+Agents learn survival, trade, expansion, and conflict strategies over time.
 
-Agent Layer
+The world evolves through:
 
-State space: Critical, Low, Medium, High
+- Resource depletion
+- Climate events
+- Trade negotiations
+- Conflicts
+- Regional collapse
 
-Action space: Conserve, Trade, Expand, Raid, Ally
+The system includes real-time visualization and analytics to study emergent strategies.
 
-Q-learning with epsilon-greedy exploration
+---
 
-Adaptive trust matrix for diplomacy
+## Core Features
 
-Visualization Layer
+- Q-Learning agents
+- Dynamic climate events (drought, flood, famine)
+- Trade & diplomacy system
+- Raid & conflict mechanism
+- Collapse detection
+- Live analytics dashboard
+- Q-table visualization
+- Interactive world map
 
-Real-time world map (Canvas API)
+---
 
-Trade and alliance graph rendering
+## Simulation Cycle
 
-Economic ranking dashboard
+Each cycle:
 
-Q-table insight panel
+1. Climate event may occur  
+2. Resources deplete  
+3. Agents choose action:
+   - Conserve
+   - Trade
+   - Expand
+   - Raid  
+4. Rewards calculated  
+5. Q-table updated  
+6. Trades/conflicts processed  
+7. Collapse checked  
+8. Data logged  
 
-Reinforcement Learning Model
-Q-update rule:
+---
 
-Q(s,a) ← Q(s,a) + α [ r + γ max Q(s’,a’) − Q(s,a) ]
+## Agent Model
 
-α = 0.15 (learning rate)
+### States
+- Critical
+- Low
+- Medium
+- High  
+(Based on average resource level)
 
-γ = 0.88 (discount factor)
+### Actions
+- Conserve
+- Trade
+- Expand
+- Raid
 
-ε decays over time for convergence
+### Rewards
+- Positive → sustainability, successful trade
+- Negative → depletion, failed raid, collapse
 
-Agents are not pre-programmed — strategies emerge through reward-driven learning.
+Epsilon decreases over time for better policy convergence.
 
-Reward Engineering
-Positive incentives:
+---
 
-Trade success
+## Trade & Conflict
 
-Alliance stability
+- Trade depends on surplus, trust score, and stability.
+- Repeated successful trades build alliances.
+- Failed trade reduces trust.
+- Raid success depends on strength and stability.
 
-Resource sustainability
+---
 
-Growth
+## Emergent Analysis
 
-Negative incentives:
+Tracks:
 
-Conflict
+- Dominant strategies
+- Alliance formation
+- Conflict frequency
+- Collapse causes
+- Resource sustainability
 
-Trust loss
+---
 
-Resource collapse
+## Goal
 
-Climate damage
+To analyze:
 
-Economic score aggregates these factors each cycle.
-
-Emergent Outcomes
-Trade dominance under resource complementarity
-
-Aggressive strategies decline due to trust penalties
-
-Alliances stabilize long-term growth
-
-Survival mode shifts policy toward conservation
-
-Technical Value
-WorldSim demonstrates:
-
-Multi-agent RL in dynamic environments
-
-Incentive-driven equilibrium formation
-
-Trust-network evolution
-
-Real-time interactive simulation
-
-A scalable prototype bridging reinforcement learning, economics, and geopolitical modeling.
+- Which strategies survive long-term?
+- Which collapse and why?
+- What does this reveal about real-world resource conflicts?
