@@ -24,6 +24,9 @@
 html,body{width:100%;height:100%;overflow:hidden;}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;display:flex;flex-direction:column;}
 
+/* ══ ANIMATED BACKGROUND PARTICLES ══ */
+#particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.35;}
+
 /* scanlines */
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:9999;}
 
@@ -32,17 +35,33 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   display:flex;align-items:center;gap:20px;padding:11px 24px;
   background:linear-gradient(90deg,#06080e 0%,#0e1828 50%,#06080e 100%);
   border-bottom:1px solid var(--border2);flex-shrink:0;position:relative;z-index:100;
+  animation: topbarReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes topbarReveal {
+  from { opacity:0; transform:translateY(-20px); }
+  to   { opacity:1; transform:translateY(0); }
 }
 .topbar::before{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent 0%,var(--gold) 40%,var(--gold2) 50%,var(--gold) 60%,transparent 100%);}
+  background:linear-gradient(90deg,transparent 0%,var(--gold) 40%,var(--gold2) 50%,var(--gold) 60%,transparent 100%);
+  animation: shimmer 4s linear infinite;}
 .topbar::after{content:'';position:absolute;bottom:-3px;left:25%;right:25%;height:1px;
   background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
 
 .logo{
   font-family:var(--font-display);font-size:16px;font-weight:900;
   color:var(--gold2);letter-spacing:0.15em;
   text-shadow:0 0 30px rgba(201,168,76,0.5),0 0 60px rgba(201,168,76,0.2);
   white-space:nowrap;flex-shrink:0;
+  animation: logoGlow 3s ease-in-out infinite alternate;
+}
+@keyframes logoGlow {
+  from { text-shadow:0 0 20px rgba(201,168,76,0.4),0 0 40px rgba(201,168,76,0.15); }
+  to   { text-shadow:0 0 40px rgba(201,168,76,0.7),0 0 80px rgba(201,168,76,0.3),0 0 120px rgba(201,168,76,0.1); }
 }
 .logo small{font-family:var(--font-mono);font-size:9px;color:var(--dim);letter-spacing:0.2em;display:block;margin-top:2px;font-weight:400;}
 
@@ -52,46 +71,74 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .tstat{
   text-align:center;padding:6px 14px;
   background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:var(--r2);
-  transition:border-color 0.3s;
+  transition:border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  animation: statReveal 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:0;
 }
-.tstat:hover{border-color:var(--border2);}
-.tstat-val{font-family:var(--font-ui);font-size:18px;font-weight:700;color:var(--gold2);line-height:1;letter-spacing:0.05em;}
+.tstat:nth-child(1){animation-delay:0.1s}
+.tstat:nth-child(2){animation-delay:0.15s}
+.tstat:nth-child(3){animation-delay:0.2s}
+.tstat:nth-child(4){animation-delay:0.25s}
+.tstat:nth-child(5){animation-delay:0.3s}
+.tstat:nth-child(6){animation-delay:0.35s}
+.tstat:nth-child(7){animation-delay:0.4s}
+@keyframes statReveal {
+  from { opacity:0; transform:translateY(10px) scale(0.95); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+.tstat:hover{border-color:var(--border2);box-shadow:0 0 12px rgba(201,168,76,0.1);transform:translateY(-2px);}
+.tstat-val{font-family:var(--font-ui);font-size:18px;font-weight:700;color:var(--gold2);line-height:1;letter-spacing:0.05em;transition:transform 0.2s, color 0.3s;}
+.tstat-val.bump{animation:numBump 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes numBump{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
 .tstat-lbl{font-family:var(--font-mono);color:var(--dim);font-size:9px;letter-spacing:0.15em;margin-top:3px;text-transform:uppercase;}
 
 .controls{display:flex;gap:8px;align-items:center;flex-shrink:0;}
 .btn{
   font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:0.12em;
   padding:9px 18px;border:1px solid var(--border2);border-radius:var(--r2);
-  background:rgba(0,0,0,0.4);color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap;
+  background:rgba(0,0,0,0.4);color:var(--text2);cursor:pointer;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);white-space:nowrap;
+  position:relative;overflow:hidden;
 }
-.btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.05);}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.06) 0%,transparent 50%);
+  opacity:0;transition:opacity 0.2s;
+}
+.btn:hover::after{opacity:1;}
+.btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.05);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+.btn:active{transform:translateY(0) scale(0.97);}
 .btn.primary{
   background:linear-gradient(135deg,rgba(42,30,0,0.9),rgba(80,56,0,0.9));
   border-color:var(--gold);color:var(--gold2);
   box-shadow:0 0 8px rgba(201,168,76,0.15);
 }
-.btn.primary:hover{box-shadow:0 0 16px rgba(201,168,76,0.35);color:var(--gold3);}
+.btn.primary:hover{box-shadow:0 0 24px rgba(201,168,76,0.4),0 4px 20px rgba(0,0,0,0.5);color:var(--gold3);}
 .btn.danger{border-color:rgba(232,72,72,0.5);color:var(--danger);}
-.btn.danger:hover{background:rgba(232,72,72,0.08);border-color:var(--danger);}
-.spd{font-family:var(--font-ui);font-size:12px;color:var(--warn);font-weight:700;letter-spacing:0.1em;}
+.btn.danger:hover{background:rgba(232,72,72,0.08);border-color:var(--danger);box-shadow:0 0 16px rgba(232,72,72,0.2);}
+.spd{font-family:var(--font-ui);font-size:12px;color:var(--warn);font-weight:700;letter-spacing:0.1em;transition:all 0.2s;}
 
 /* ══ LAYOUT ══ */
-.main{display:grid;grid-template-columns:440px 1fr;flex:1;overflow:hidden;min-height:0;}
+.main{display:grid;grid-template-columns:440px 1fr;flex:1;overflow:hidden;min-height:0;position:relative;z-index:1;}
 
 /* ── LEFT PANEL ── */
-.leftwrap{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);}
+.leftwrap{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);
+  animation: slideInLeft 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;opacity:0;}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
 
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0;}
 .tab{
   flex:1;padding:11px 8px;font-family:var(--font-ui);font-size:10px;font-weight:700;
-  letter-spacing:0.1em;cursor:pointer;color:var(--dim);transition:all 0.2s;
-  border-bottom:2px solid transparent;text-align:center;
+  letter-spacing:0.1em;cursor:pointer;color:var(--dim);transition:all 0.25s;
+  border-bottom:2px solid transparent;text-align:center;position:relative;overflow:hidden;
 }
+.tab::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:2px;background:var(--gold);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);opacity:0;}
 .tab:hover{color:var(--text2);}
 .tab.active{color:var(--gold2);border-bottom-color:var(--gold);background:rgba(201,168,76,0.03);}
+.tab.active::after{left:0;right:0;opacity:1;}
 
 .tab-content{flex:1;overflow:hidden;display:none;min-height:0;}
-.tab-content.active{display:flex;flex-direction:column;overflow-y:auto;}
+.tab-content.active{display:flex;flex-direction:column;overflow-y:auto;animation:tabFadeIn 0.3s ease;}
+@keyframes tabFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .tab-content::-webkit-scrollbar{width:4px;}
 .tab-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 .tab-content::-webkit-scrollbar-track{background:transparent;}
@@ -102,58 +149,82 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .realm-card{
   background:linear-gradient(135deg,var(--panel2) 0%,rgba(10,14,24,0.95) 100%);
   border:1px solid var(--border);border-radius:var(--r);
-  padding:14px;cursor:pointer;transition:all 0.25s;
+  padding:14px;cursor:pointer;
+  transition:border-color 0.35s ease, box-shadow 0.35s ease, transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
   position:relative;overflow:hidden;
 }
+
 .realm-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,transparent,var(--rc),transparent);
+  animation:borderShimmer 3s ease infinite;
+}
+@keyframes borderShimmer{
+  0%,100%{opacity:0.6;background-size:200% 100%;background-position:left center;}
+  50%{opacity:1;background-size:200% 100%;background-position:right center;}
 }
 .realm-card::after{
   content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
   background:var(--rc,transparent);opacity:0.7;
+  transition:width 0.3s ease;
 }
-.realm-card:hover{border-color:var(--border2);transform:translateX(2px);}
-.realm-card.sel{border-color:rgba(201,168,76,0.5);background:linear-gradient(135deg,rgba(15,20,36,0.98),rgba(12,16,28,0.98));}
+.realm-card:hover{border-color:var(--border2);transform:translateX(4px) translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.03);}
+.realm-card:hover::after{width:4px;}
+.realm-card.sel{border-color:rgba(201,168,76,0.5);background:linear-gradient(135deg,rgba(15,20,36,0.98),rgba(12,16,28,0.98));box-shadow:0 0 20px rgba(201,168,76,0.08),inset 0 0 30px rgba(201,168,76,0.03);}
 .realm-card.sel::before{opacity:1;}
-.realm-card.collapsed{border-color:rgba(232,72,72,0.25);opacity:0.8;}
+.realm-card.collapsed{border-color:rgba(232,72,72,0.25);opacity:0.8;animation:collapsedPulse 2.5s ease infinite;}
+@keyframes collapsedPulse{0%,100%{border-color:rgba(232,72,72,0.2)}50%{border-color:rgba(232,72,72,0.45)}}
 .realm-card.regrow{border-color:rgba(94,212,104,0.35);animation:regrowPulse 2s ease infinite;}
 .realm-card.struggle{border-color:rgba(240,144,48,0.35);}
-
-@keyframes regrowPulse{0%,100%{box-shadow:0 0 0 rgba(94,212,104,0)}50%{box-shadow:0 0 12px rgba(94,212,104,0.15)}}
+@keyframes regrowPulse{0%,100%{box-shadow:0 0 0 rgba(94,212,104,0)}50%{box-shadow:0 0 20px rgba(94,212,104,0.2)}}
 
 .rc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
 .rc-name-wrap{}
 .rc-name{font-family:var(--font-ui);font-size:15px;font-weight:700;letter-spacing:0.08em;margin-bottom:3px;}
-.rc-phase{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;padding:2px 8px;border-radius:3px;}
+.rc-phase{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;padding:2px 8px;border-radius:3px;transition:all 0.4s ease;}
 .rc-right{text-align:right;}
-.rc-strat{font-family:var(--font-mono);font-size:10px;padding:3px 9px;border-radius:3px;letter-spacing:0.06em;display:inline-block;margin-bottom:4px;}
-.rc-econ{font-family:var(--font-ui);font-size:22px;font-weight:900;color:var(--gold2);line-height:1;}
-.rc-delta{font-family:var(--font-body);font-size:12px;color:var(--dim);margin-top:2px;}
+.rc-strat{font-family:var(--font-mono);font-size:10px;padding:3px 9px;border-radius:3px;letter-spacing:0.06em;display:inline-block;margin-bottom:4px;transition:all 0.3s;}
+.rc-econ{font-family:var(--font-ui);font-size:22px;font-weight:900;color:var(--gold2);line-height:1;transition:transform 0.3s;}
+.realm-card:hover .rc-econ{transform:scale(1.05);}
+.rc-delta{font-family:var(--font-body);font-size:12px;color:var(--dim);margin-top:2px;transition:color 0.3s;}
 
-/* RESOURCE BARS — beautiful */
+/* RESOURCE BARS — animated */
 .res-bars{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;}
 .res-bar-row{display:flex;align-items:center;gap:8px;}
-.res-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.res-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;transition:transform 0.3s;}
+.realm-card:hover .res-icon{transform:scale(1.2);}
 .res-label{font-family:var(--font-mono);font-size:10px;color:var(--dim);width:44px;letter-spacing:0.06em;flex-shrink:0;}
 .res-track{flex:1;position:relative;height:8px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;}
 .res-fill{
-  height:100%;border-radius:4px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+  height:100%;border-radius:4px;
+  transition:width 0.7s cubic-bezier(0.4,0,0.2,1);
   position:relative;
+  transform-origin:left;
 }
 .res-fill::after{
   content:'';position:absolute;top:0;left:0;right:0;height:50%;
-  background:rgba(255,255,255,0.15);border-radius:4px 4px 0 0;
+  background:rgba(255,255,255,0.2);border-radius:4px 4px 0 0;
+}
+/* Moving shimmer on bars */
+.res-fill::before{
+  content:'';position:absolute;top:0;bottom:0;width:60px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+  animation:barShimmer 2.5s linear infinite;
+  border-radius:4px;
+}
+@keyframes barShimmer{
+  from{left:-60px;opacity:0.8}
+  to{left:100%;opacity:0}
 }
 .res-segments{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;}
 .res-seg{flex:1;border-right:1px solid rgba(0,0,0,0.3);}
 .res-seg:last-child{border:none;}
-.res-val{font-family:var(--font-ui);font-size:12px;font-weight:600;width:30px;text-align:right;flex-shrink:0;}
+.res-val{font-family:var(--font-ui);font-size:12px;font-weight:600;width:30px;text-align:right;flex-shrink:0;transition:color 0.4s,transform 0.2s;}
 .res-trend{font-size:10px;width:14px;text-align:center;flex-shrink:0;}
 
 /* rc footer */
 .rc-footer{display:flex;gap:8px;align-items:center;padding-top:8px;border-top:1px solid var(--border);}
-.rc-stat{font-family:var(--font-body);font-size:12px;color:var(--dim);display:flex;align-items:center;gap:4px;}
+.rc-stat{font-family:var(--font-body);font-size:12px;color:var(--dim);display:flex;align-items:center;gap:4px;transition:color 0.3s;}
 .rc-stat span{color:var(--text2);}
 
 /* ── RESOURCE GRID TAB ── */
@@ -161,7 +232,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .rg-realm{
   background:var(--panel2);border:1px solid var(--border);
   border-radius:var(--r);overflow:hidden;
+  transition:transform 0.3s, box-shadow 0.3s;
 }
+.rg-realm:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4);}
 .rg-header{
   padding:10px 14px;display:flex;justify-content:space-between;align-items:center;
   border-bottom:1px solid var(--border);
@@ -174,22 +247,31 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .rg-res-box{
   background:rgba(0,0,0,0.25);border:1px solid var(--border);
   border-radius:var(--r2);padding:10px;
+  transition:border-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
+.rg-res-box:hover{border-color:rgba(255,255,255,0.1);transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.4);}
 .rg-res-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.rg-res-icon{font-size:18px;}
+.rg-res-icon{font-size:18px;transition:transform 0.3s;}
+.rg-res-box:hover .rg-res-icon{transform:scale(1.2) rotate(-5deg);}
 .rg-res-name{font-family:var(--font-mono);font-size:10px;color:var(--dim);letter-spacing:0.1em;}
-.rg-res-val{font-family:var(--font-ui);font-size:22px;font-weight:900;line-height:1;}
+.rg-res-val{font-family:var(--font-ui);font-size:22px;font-weight:900;line-height:1;transition:transform 0.2s;}
 .rg-res-bar{height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-top:6px;}
-.rg-res-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+.rg-res-fill{height:100%;border-radius:3px;transition:width 0.7s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;}
+.rg-res-fill::after{
+  content:'';position:absolute;top:0;bottom:0;width:40px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+  animation:barShimmer 2s linear infinite;
+}
 .rg-factors{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
 .rg-factor{
   background:rgba(0,0,0,0.3);border:1px solid var(--border);
   border-radius:4px;padding:6px 8px;
   display:flex;justify-content:space-between;align-items:center;
-  font-size:11px;
+  font-size:11px;transition:all 0.25s;
 }
+.rg-factor:hover{background:rgba(255,255,255,0.02);border-color:var(--border2);transform:scale(1.03);}
 .rg-f-name{color:var(--text2);font-family:var(--font-body);}
-.rg-f-val{font-family:var(--font-ui);font-size:12px;font-weight:700;}
+.rg-f-val{font-family:var(--font-ui);font-size:12px;font-weight:700;transition:transform 0.2s;}
 .rg-f-val.pos{color:var(--ok);}
 .rg-f-val.neg{color:var(--danger);}
 .rg-f-val.neu{color:var(--gold);}
@@ -203,29 +285,36 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   border-bottom:1px solid var(--border2);
   background:rgba(0,0,0,0.5);text-transform:uppercase;
 }
-.rank-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.rank-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;transition:background 0.2s;}
+.rank-table tr{transition:all 0.3s;}
 .rank-table tr:hover td{background:rgba(201,168,76,0.03);}
+.rank-table tr.rank-row{animation:rankRowFade 0.4s ease forwards;opacity:0;}
+@keyframes rankRowFade{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 .rnum{font-family:var(--font-display);font-size:20px;font-weight:900;text-align:center;}
-.rnum.r1{color:#ffd700;text-shadow:0 0 12px rgba(255,215,0,0.4);}
+.rnum.r1{color:#ffd700;text-shadow:0 0 12px rgba(255,215,0,0.4);animation:r1Pulse 2s ease infinite;}
+@keyframes r1Pulse{0%,100%{text-shadow:0 0 10px rgba(255,215,0,0.4)}50%{text-shadow:0 0 22px rgba(255,215,0,0.7),0 0 40px rgba(255,215,0,0.2)}}
 .rnum.r2{color:#c8c8c8;}
 .rnum.r3{color:#d08040;}
 .rnum.rn{color:var(--dim);}
 .rbadge{display:flex;align-items:center;gap:7px;}
-.rdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.rdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:transform 0.2s,box-shadow 0.2s;}
+.rank-table tr:hover .rdot{transform:scale(1.5);box-shadow:0 0 8px currentColor;}
 .rname{font-family:var(--font-ui);font-size:12px;font-weight:700;}
 .rpts{font-family:var(--font-ui);font-size:16px;font-weight:700;}
 .rdelta{font-size:12px;font-family:var(--font-body);}
 .rbar-wrap{width:100px;}
 .rbar-bg{height:12px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;}
-.rbar-fg{height:100%;border-radius:6px;transition:width 0.6s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
+.rbar-fg{height:100%;border-radius:6px;transition:width 0.7s cubic-bezier(0.4,0,0.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;position:relative;overflow:hidden;}
+.rbar-fg::after{content:'';position:absolute;top:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);animation:barShimmer 1.8s linear infinite;}
 .rbar-label{font-family:var(--font-ui);font-size:8px;font-weight:700;color:rgba(0,0,0,0.8);}
-.rstatus{font-family:var(--font-body);font-size:12px;font-weight:600;}
+.rstatus{font-family:var(--font-body);font-size:12px;font-weight:600;transition:color 0.4s;}
 
 /* RP Legend */
 .rp-card{background:var(--panel2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
 .rp-hd{font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:0.15em;color:var(--gold);padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.4);}
 .rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
-.rp-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:8px 14px;border-bottom:1px solid var(--border);}
+.rp-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:8px 14px;border-bottom:1px solid var(--border);transition:background 0.2s;}
+.rp-row:hover{background:rgba(255,255,255,0.02);}
 .rp-row:nth-child(odd){border-right:1px solid var(--border);}
 .rp-row:last-child,.rp-row:nth-last-child(2):nth-child(odd){border-bottom:none;}
 .rp-icon{font-size:15px;width:22px;text-align:center;}
@@ -234,7 +323,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 /* ── ANALYSIS TAB ── */
 .ana-wrap{padding:14px;display:flex;flex-direction:column;gap:12px;}
-.ins-card{background:var(--panel2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.ins-card{background:var(--panel2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all 0.3s;}
+.ins-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
 .ins-hd{
   font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:0.12em;
   color:var(--gold);padding:10px 14px;border-bottom:1px solid var(--border);
@@ -246,7 +336,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .ins-bd .highlight{color:var(--text);font-weight:600;}
 
 /* ── MAP (RIGHT) ── */
-.mapwrap{display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;}
+.mapwrap{display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;
+  animation:slideInRight 0.7s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;opacity:0;}
+@keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 .map-topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:9px 18px;border-bottom:1px solid var(--border);
@@ -255,7 +347,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .map-title{font-family:var(--font-ui);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:0.12em;}
 .map-status{display:flex;gap:16px;font-family:var(--font-mono);font-size:10px;color:var(--dim);}
 .map-status span{display:flex;align-items:center;gap:5px;}
-.status-dot{width:7px;height:7px;border-radius:50%;animation:pulse 1.5s infinite;}
+.status-dot{width:7px;height:7px;border-radius:50%;animation:dotPulse 1.5s infinite;}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 currentColor}50%{opacity:0.5;transform:scale(0.8)}75%{box-shadow:0 0 0 4px transparent}}
 
 #worldCanvas{flex:1;width:100%;display:block;min-height:0;}
 
@@ -265,7 +358,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   border-top:1px solid var(--border);flex-shrink:0;
   background:var(--panel);max-height:130px;
 }
-.mib-section{padding:10px 14px;border-right:1px solid var(--border);}
+.mib-section{padding:10px 14px;border-right:1px solid var(--border);transition:background 0.2s;}
+.mib-section:hover{background:rgba(255,255,255,0.01);}
 .mib-section:last-child{border:none;}
 .mib-title{font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:0.18em;color:var(--gold);margin-bottom:7px;text-transform:uppercase;}
 .mib-body{font-family:var(--font-body);font-size:11px;line-height:1.6;color:var(--dim);overflow-y:auto;max-height:90px;}
@@ -277,7 +371,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   background:rgba(184,112,224,0.08);border:1px solid rgba(184,112,224,0.2);
   border-radius:4px;padding:3px 8px;margin:2px 3px 2px 0;
   font-size:11px;font-family:var(--font-body);
+  animation:chipAppear 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  transition:all 0.2s;
 }
+.al-chip:hover{background:rgba(184,112,224,0.15);transform:scale(1.05);}
+@keyframes chipAppear{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:scale(1)}}
 
 /* Event log */
 .evlog{
@@ -286,23 +384,57 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 }
 .evlog::-webkit-scrollbar{width:3px;}
 .evlog::-webkit-scrollbar-thumb{background:var(--border2);}
-.log-entry{display:flex;gap:10px;font-size:11px;line-height:1.75;animation:fadeIn 0.2s ease;font-family:var(--font-mono);}
+.log-entry{
+  display:flex;gap:10px;font-size:11px;line-height:1.75;
+  animation:logSlide 0.25s cubic-bezier(0.16,1,0.3,1);
+  font-family:var(--font-mono);
+}
+@keyframes logSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .log-time{color:var(--dim);flex-shrink:0;font-size:10px;letter-spacing:0.05em;}
-.lt{color:var(--food);}   /* trade */
-.lc{color:var(--danger);}  /* conflict */
-.lm{color:var(--warn);}    /* climate */
-.lg{color:var(--ok);}      /* growth */
-.la{color:var(--valyria);}  /* alliance */
-.li{color:var(--dim);}      /* info */
-.ls{color:var(--warn);}     /* struggle */
-.lr{color:#a0e870;}         /* regrowth */
+.lt{color:var(--food);}
+.lc{color:var(--danger);}
+.lm{color:var(--warn);}
+.lg{color:var(--ok);}
+.la{color:var(--valyria);}
+.li{color:var(--dim);}
+.ls{color:var(--warn);}
+.lr{color:#a0e870;}
 
-@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.75)}}
-@keyframes growIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* ══ FLASH OVERLAY for events ══ */
+.event-flash{
+  position:fixed;inset:0;pointer-events:none;z-index:200;
+  opacity:0;transition:opacity 0.1s;
+}
+.event-flash.active{animation:flashAnim 0.6s ease forwards;}
+@keyframes flashAnim{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+
+/* ══ FLOATING EVENT TOAST ══ */
+.event-toast{
+  position:fixed;top:80px;right:24px;z-index:300;
+  background:rgba(8,11,20,0.96);border:1px solid var(--border2);
+  border-radius:8px;padding:10px 16px;
+  font-family:var(--font-mono);font-size:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  pointer-events:none;
+  animation:toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  max-width:320px;
+}
+.event-toast.out{animation:toastOut 0.3s ease forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px) scale(0.9)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px) scale(0.9)}}
+
+/* ══ GRAPH ══ */
+#graph-overlay{
+  transition:opacity 0.3s ease;
+}
 </style>
 </head>
 <body>
+
+<!-- Background particle canvas -->
+<canvas id="particle-canvas"></canvas>
+<!-- Event flash overlay -->
+<div class="event-flash" id="event-flash"></div>
 
 <!-- ══ TOPBAR ══ -->
 <div class="topbar">
@@ -328,8 +460,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ MAIN ══ -->
 <div class="main">
-
-  <!-- LEFT: tabbed panels -->
   <div class="leftwrap">
     <div class="tabs">
       <div class="tab active" onclick="showTab('overview',this)">👑 REALMS</div>
@@ -337,18 +467,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="tab" onclick="showTab('ranking',this)">🏆 RANKING</div>
       <div class="tab" onclick="showTab('analysis',this)">🔬 ANALYSIS</div>
     </div>
-
-    <!-- OVERVIEW -->
-    <div class="tab-content active" id="tab-overview">
-      <div class="ov-wrap" id="ov-cards"></div>
-    </div>
-
-    <!-- RESOURCE GRID -->
-    <div class="tab-content" id="tab-resgrid">
-      <div class="rg-wrap" id="rg-inner"></div>
-    </div>
-
-    <!-- RANKING -->
+    <div class="tab-content active" id="tab-overview"><div class="ov-wrap" id="ov-cards"></div></div>
+    <div class="tab-content" id="tab-resgrid"><div class="rg-wrap" id="rg-inner"></div></div>
     <div class="tab-content" id="tab-ranking">
       <div class="rank-wrap">
         <table class="rank-table">
@@ -365,8 +485,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </div>
       </div>
     </div>
-
-    <!-- ANALYSIS -->
     <div class="tab-content" id="tab-analysis">
       <div class="ana-wrap" id="ana-inner">
         <div class="ins-card"><div class="ins-bd" style="padding:20px;color:var(--dim);font-size:13px">Start the simulation to generate strategic analysis...</div></div>
@@ -374,7 +492,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
   </div>
 
-  <!-- RIGHT: big map -->
   <div class="mapwrap">
     <div class="map-topbar">
       <div class="map-title">🗺 WORLD MAP — LIVE SIMULATION ENGINE</div>
@@ -382,13 +499,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <button class="btn" id="btn-graph" onclick="toggleGraph()" style="padding:5px 12px;font-size:9px">📈 SHOW GRAPH</button>
       </div>
       <div class="map-status">
-        <span><span class="status-dot" style="background:var(--ok)" id="sim-dot"></span><span id="sim-status-lbl">STANDBY</span></span>
+        <span><span class="status-dot" style="background:var(--ok);color:var(--ok)" id="sim-dot"></span><span id="sim-status-lbl">STANDBY</span></span>
         <span id="climate-badge" style="color:var(--ok)">☀ CLIMATE: STABLE</span>
         <span id="map-cycle-lbl" style="color:var(--gold)">CYC 0</span>
       </div>
     </div>
     <canvas id="worldCanvas"></canvas>
-    <!-- GRAPH OVERLAY -->
     <div id="graph-overlay" style="display:none;position:absolute;top:44px;left:0;right:0;bottom:230px;background:rgba(6,8,16,0.97);z-index:50;flex-direction:column;padding:16px 20px;overflow:hidden;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
         <div style="font-family:var(--font-ui);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:0.12em;">📈 ECONOMY POINTS — LIVE CHART</div>
@@ -417,14 +533,88 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="log-entry"><span class="log-time">[000]</span><span class="li">WorldSim v5 initialized — all realms can collapse, learn, and regrow. Press BEGIN.</span></div>
     </div>
   </div>
-
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// WORLDSIM v5 — COLLAPSE + REGROWTH ENGINE
-// ══════════════════════════════════════════════════════
+const wc=document.getElementById('worldCanvas');
+const wctx=wc.getContext('2d');
 
+// ══════════════════════════════════════════════════════
+// PARTICLE BACKGROUND ENGINE
+// ══════════════════════════════════════════════════════
+const pc = document.getElementById('particle-canvas');
+const pctx = pc.getContext('2d');
+let particles = [];
+
+function resizePC(){pc.width=window.innerWidth;pc.height=window.innerHeight;}
+window.addEventListener('resize',resizePC);resizePC();
+
+function mkParticle(){
+  return {
+    x:Math.random()*pc.width, y:Math.random()*pc.height,
+    vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.25,
+    r:0.5+Math.random()*1.5,
+    a:Math.random(),
+    maxA:0.2+Math.random()*0.5,
+    col:[
+      [122,176,232],[200,168,76],[88,208,104],[184,112,224],
+      [245,200,48],[56,180,240],[208,120,64]
+    ][Math.floor(Math.random()*7)],
+    pulse:Math.random()*Math.PI*2,
+    pulseSpeed:0.01+Math.random()*0.02,
+  };
+}
+for(let i=0;i<140;i++) particles.push(mkParticle());
+
+function animateParticles(){
+  pctx.clearRect(0,0,pc.width,pc.height);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.pulse+=p.pulseSpeed;
+    p.a = p.maxA * (0.5 + 0.5*Math.sin(p.pulse));
+    if(p.x<0||p.x>pc.width) p.vx*=-1;
+    if(p.y<0||p.y>pc.height) p.vy*=-1;
+    pctx.beginPath();
+    pctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    pctx.fillStyle=`rgba(${p.col[0]},${p.col[1]},${p.col[2]},${p.a})`;
+    pctx.fill();
+  });
+  // draw faint connection lines
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const d=Math.hypot(particles[i].x-particles[j].x,particles[i].y-particles[j].y);
+      if(d<80){
+        pctx.strokeStyle=`rgba(24,38,58,${(1-d/80)*0.35})`;
+        pctx.lineWidth=0.5;
+        pctx.beginPath();pctx.moveTo(particles[i].x,particles[i].y);pctx.lineTo(particles[j].x,particles[j].y);pctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ══════════════════════════════════════════════════════
+// WORLD CANVAS ANIMATION LOOP
+// ══════════════════════════════════════════════════════
+let wAnimFrame = null;
+let wAnimT = 0;
+let floatingTexts = []; // {x,y,text,color,life,maxLife,vy}
+let ripples = [];       // {x,y,r,maxR,color,life}
+let shockwaves = [];    // {x,y,r,color,life}
+
+function spawnFloat(x,y,text,color){
+  floatingTexts.push({x,y,text,color,life:60,maxLife:60,vy:-1.2});
+}
+function spawnRipple(x,y,color){
+  ripples.push({x,y,r:0,maxR:60,color,life:50,maxLife:50});
+}
+function spawnShockwave(x,y,color){
+  shockwaves.push({x,y,r:0,color,life:40,maxLife:40});
+}
+
+// ══════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ══════════════════════════════════════════════════════
 const REALM_DEFS = [
   {id:0,name:'THE NORTH',  short:'NORTH', color:'#7ab0e8',x:0.18,y:0.18,r:{water:80,food:40,energy:50,land:75}},
   {id:1,name:'WESTERLANDS',short:'WEST',  color:'#d07840',x:0.20,y:0.66,r:{water:45,food:58,energy:88,land:62}},
@@ -433,7 +623,6 @@ const REALM_DEFS = [
   {id:4,name:'IRON ISLANDS',short:'IRON', color:'#7888b0',x:0.82,y:0.40,r:{water:38,food:62,energy:55,land:32}},
 ];
 
-// PHASE: 'thriving'|'stable'|'struggling'|'critical'|'collapsed'|'regrowth'
 const FACTORS = [
   {id:'food',   name:'Food Surplus',    icon:'🌾',compute:r=>r.res.food-40,       pts:v=>v>20?15:v>0?8:v>-15?-4:-14},
   {id:'water',  name:'Water Access',    icon:'💧',compute:r=>r.res.water,          pts:v=>v>70?12:v>40?6:v>20?-3:-12},
@@ -470,65 +659,48 @@ const ACTS = ['CONSERVE','TRADE','EXPAND','RAID','ALLY'];
 const AICO = ['🌱','🤝','🏰','⚔','🛡'];
 
 let S = {};
+let prevStatVals = {cycle:0,active:5,coll:0,regrow:0,trades:0,alliances:0};
 
-function mkRegion(d) {
+function mkRegion(d){
   return {
-    ...d,
-    res:{...d.r},
-    prevRes:{...d.r},
-    population: 55+Math.floor(Math.random()*30),
-    phase:'stable',
-    alive:true,
-    age:0,
-    collapseCount:0,
-    regrowthCount:0,
-    collapseCycle:0,
-    regrowthCycle:0,
-    econPts:100,
-    econDelta:0,
-    // Q-table: 4 states × 5 actions
-    q: Array(4).fill(null).map(()=>ACTS.map((_,i)=>[0.15,0.30,0.20,0.10,0.18][i]+Math.random()*0.06)),
-    epsilon:0.45,
-    // RL memory for post-collapse learning
-    collapseMemory:{q:null,lastLoss:null,lastAction:null},
+    ...d,res:{...d.r},prevRes:{...d.r},
+    population:55+Math.floor(Math.random()*30),
+    phase:'stable',alive:true,age:0,
+    collapseCount:0,regrowthCount:0,collapseCycle:0,regrowthCycle:0,
+    econPts:100,econDelta:0,
+    q:Array(4).fill(null).map(()=>ACTS.map((_,i)=>[0.15,0.30,0.20,0.10,0.18][i]+Math.random()*0.06)),
+    epsilon:0.45,collapseMemory:{q:null,lastLoss:null,lastAction:null},
     lastAction:null,lastReward:0,
-    // per-cycle
     tradeCount:0,allianceCount:0,conflictCount:0,conserveCount:0,expandCount:0,climateHits:0,
-    // cumulative
-    totalTrades:0,totalAlliances:0,totalConflicts:0,
-    trust:{},
+    totalTrades:0,totalAlliances:0,totalConflicts:0,trust:{},
+    // animation state
+    _econDisplayed:100, _prevPhase:'stable',
   };
 }
 
-function initState() {
-  S = {
+function initState(){
+  S={
     cycle:0,running:false,speed:0,timer:null,selectedId:null,
     totalTrades:0,totalConflicts:0,totalAlliances:0,totalCollapses:0,totalRegrowths:0,
     climateEvents:[],emergentBehaviors:[],econHistory:[],
     recentTrades:[],alliances:[],
-    regions: REALM_DEFS.map(mkRegion),
+    regions:REALM_DEFS.map(mkRegion),
   };
   S.regions.forEach(r=>S.regions.forEach(o=>{if(r.id!==o.id)r.trust[o.id]=Math.random()*0.4-0.1;}));
+  floatingTexts=[];ripples=[];shockwaves=[];
 }
 initState();
 
 // ── RL ──
-function rsOf(r){
-  const avg=(r.res.water+r.res.food+r.res.energy+r.res.land)/4;
-  return avg<20?0:avg<40?1:avg<65?2:3;
-}
+function rsOf(r){const avg=(r.res.water+r.res.food+r.res.energy+r.res.land)/4;return avg<20?0:avg<40?1:avg<65?2:3;}
 function pickAction(r){
   if(!r.alive) return null;
-  // Post-collapse: bias heavily toward conserve+trade, away from raid
-  if(r.phase==='regrowth'){
-    if(Math.random()<0.5) return 0; // conserve
-    if(Math.random()<0.5) return 1; // trade
-  }
+  if(r.phase==='regrowth'){if(Math.random()<0.5)return 0;if(Math.random()<0.5)return 1;}
   if(Math.random()<r.epsilon) return Math.floor(Math.random()*5);
-  const qs=r.q[rsOf(r)]; return qs.indexOf(Math.max(...qs));
+  const qs=r.q[rsOf(r)];return qs.indexOf(Math.max(...qs));
 }
 function updQ(r,s,a,reward,ns){
-  const alpha=0.18, gamma=0.88;
+  const alpha=0.18,gamma=0.88;
   const best=Math.max(...r.q[ns]);
   r.q[s][a]+=alpha*(reward+gamma*best-r.q[s][a]);
   r.epsilon=Math.max(0.04,r.epsilon*0.9985);
@@ -538,48 +710,48 @@ function worstRes(r){return Object.entries(r.res).sort((a,b)=>a[1]-b[1])[0][0];}
 function C(v,lo,hi){return Math.min(hi,Math.max(lo,v));}
 
 function execAction(r,action){
-  let reward=0; const logs=[];
+  let reward=0;const logs=[];
   const alive=S.regions.filter(x=>x.alive&&x.id!==r.id);
-
-  if(action===0){// CONSERVE
-    r.res.water =C(r.res.water +3+Math.random()*3,0,100);
-    r.res.food  =C(r.res.food  +3+Math.random()*4,0,100);
+  if(action===0){
+    r.res.water=C(r.res.water+3+Math.random()*3,0,100);
+    r.res.food=C(r.res.food+3+Math.random()*4,0,100);
     r.res.energy=C(r.res.energy+2+Math.random()*3,0,100);
-    reward=4+Math.random()*2; r.conserveCount++;
+    reward=4+Math.random()*2;r.conserveCount++;
     logs.push({t:'lg',m:`${r.short} conserves resources — reserves stabilized`});
-
-  } else if(action===1){// TRADE
+    spawnFloat(r.x*wc.width,r.y*wc.height,'+🌱',r.color);
+  } else if(action===1){
     const par=alive.sort((a,b)=>(r.trust[b.id]||0)-(r.trust[a.id]||0))[0];
     if(par){
-      const give=bestRes(r), get=worstRes(r);
+      const give=bestRes(r),get=worstRes(r);
       const amt=10+Math.floor(Math.random()*12);
       if(r.res[give]>28){
-        r.res[give] =C(r.res[give] -amt*0.65,0,100);
+        r.res[give]=C(r.res[give]-amt*0.65,0,100);
         par.res[give]=C(par.res[give]+amt*0.50,0,100);
-        r.res[get]  =C(r.res[get]  +amt*0.55,0,100);
-        par.res[get] =C(par.res[get] -amt*0.30,0,100);
-        r.trust[par.id] =C((r.trust[par.id]||0)+0.07,-1,1);
-        par.trust[r.id] =C((par.trust[r.id]||0)+0.07,-1,1);
+        r.res[get]=C(r.res[get]+amt*0.55,0,100);
+        par.res[get]=C(par.res[get]-amt*0.30,0,100);
+        r.trust[par.id]=C((r.trust[par.id]||0)+0.07,-1,1);
+        par.trust[r.id]=C((par.trust[r.id]||0)+0.07,-1,1);
         r.tradeCount++;r.totalTrades++;S.totalTrades++;
         reward=7+Math.random()*3;
         S.recentTrades.unshift({from:r.short,to:par.short,res:give,amt:Math.round(amt),cycle:S.cycle});
         if(S.recentTrades.length>10) S.recentTrades.pop();
         logs.push({t:'lt',m:`${r.name} ↔ ${par.name}: ${give}×${Math.round(amt)} traded`});
+        spawnFloat(r.x*wc.width,r.y*wc.height,'+🤝',r.color);
+        spawnRipple(r.x*wc.width,r.y*wc.height,'#5ed468');
       }else reward=1;
     }
-
-  } else if(action===2){// EXPAND
+  } else if(action===2){
     const cost={food:4,water:3,energy:3,land:2};
     const can=Object.entries(cost).every(([k,v])=>r.res[k]>=v+12);
     if(can){
       Object.entries(cost).forEach(([k,v])=>{r.res[k]=C(r.res[k]-v,0,100);});
       r.res.land=C(r.res.land+5,0,100);
       r.population=Math.min(200,r.population+4);
-      reward=5; r.expandCount++;
+      reward=5;r.expandCount++;
       logs.push({t:'lg',m:`${r.name} expands (+pop +land)`});
+      spawnFloat(r.x*wc.width,r.y*wc.height,'+🏰',r.color);
     }else reward=-1;
-
-  } else if(action===3){// RAID
+  } else if(action===3){
     const targets=alive.filter(o=>o.res.food>25||o.res.energy>25);
     if(targets.length){
       const t=targets.sort((a,b)=>(a.res.food+a.res.water+a.res.energy)-(b.res.food+b.res.water+b.res.energy))[0];
@@ -589,23 +761,23 @@ function execAction(r,action){
       const alIdx=S.alliances.findIndex(a=>(a.a===r.id&&a.b===t.id)||(a.a===t.id&&a.b===r.id));
       if(alIdx>=0){S.alliances.splice(alIdx,1);r.econPts-=12;t.econPts-=12;logs.push({t:'lc',m:`⚔ Alliance ${r.short}↔${t.short} SHATTERED`});}
       if(Math.random()<0.5){
-        const loot=10+Math.floor(Math.random()*12); const res=worstRes(r);
+        const loot=10+Math.floor(Math.random()*12);const res=worstRes(r);
         t.res[res]=C(t.res[res]-loot*0.65,0,100);
         r.res[res]=C(r.res[res]+loot*0.6,0,100);
         reward=5;
         logs.push({t:'lc',m:`⚔ ${r.short} raids ${t.short} — seized ${loot} ${res}`});
+        spawnFloat(r.x*wc.width,r.y*wc.height,'⚔',r.color);
+        spawnShockwave(t.x*wc.width,t.y*wc.height,t.color);
+        triggerFlash('rgba(232,72,72,0.08)');
       }else{
         r.res.energy=C(r.res.energy-8,0,100);r.res.food=C(r.res.food-5,0,100);
         reward=-4;
         logs.push({t:'lc',m:`⚔ ${r.short} REPELLED by ${t.short}`});
+        spawnFloat(r.x*wc.width,r.y*wc.height,'❌',r.color);
       }
     }
-
-  } else if(action===4){// ALLY
-    const cands=alive.filter(o=>{
-      const t=r.trust[o.id]||0;
-      return t>0.22&&!S.alliances.some(a=>(a.a===r.id&&a.b===o.id)||(a.a===o.id&&a.b===r.id));
-    });
+  } else if(action===4){
+    const cands=alive.filter(o=>{const t=r.trust[o.id]||0;return t>0.22&&!S.alliances.some(a=>(a.a===r.id&&a.b===o.id)||(a.a===o.id&&a.b===r.id));});
     if(cands.length){
       const p=cands.sort((a,b)=>(r.trust[b.id]||0)-(r.trust[a.id]||0))[0];
       S.alliances.push({a:r.id,b:p.id,formed:S.cycle});
@@ -614,6 +786,9 @@ function execAction(r,action){
       p.trust[r.id]=C((p.trust[r.id]||0)+0.15,-1,1);
       reward=10;
       logs.push({t:'la',m:`🛡 ALLIANCE: ${r.name} ↔ ${p.name}`});
+      spawnFloat((r.x+p.x)/2*wc.width,(r.y+p.y)/2*wc.height,'🛡',r.color);
+      spawnRipple(r.x*wc.width,r.y*wc.height,'#b870e0');
+      triggerFlash('rgba(184,112,224,0.06)');
     }else reward=0;
   }
   return{reward,logs};
@@ -622,58 +797,39 @@ function execAction(r,action){
 function naturalDepletion(r){
   const pf=r.phase==='regrowth'?0.5:r.phase==='struggling'?0.8:r.population/100;
   r.prevRes={...r.res};
-  r.res.water =C(r.res.water -(1.1+Math.random()*0.9)*pf,0,100);
-  r.res.food  =C(r.res.food  -(1.4+Math.random()*1.4)*pf,0,100);
+  r.res.water=C(r.res.water-(1.1+Math.random()*0.9)*pf,0,100);
+  r.res.food=C(r.res.food-(1.4+Math.random()*1.4)*pf,0,100);
   r.res.energy=C(r.res.energy-(0.8+Math.random()*0.9)*pf,0,100);
-  r.res.land  =C(r.res.land  -0.2*Math.random(),0,100);
+  r.res.land=C(r.res.land-0.2*Math.random(),0,100);
 }
 
 function computePhase(r){
   if(!r.alive) return 'collapsed';
   const avg=(r.res.water+r.res.food+r.res.energy+r.res.land)/4;
-  if(r.phase==='regrowth' && S.cycle-r.regrowthCycle < 20) return 'regrowth';
+  if(r.phase==='regrowth'&&S.cycle-r.regrowthCycle<20) return 'regrowth';
   if(avg>65) return 'thriving';
   if(avg>45) return 'stable';
   if(avg>28) return 'struggling';
   return 'critical';
 }
 
-// ── COLLAPSE & REGROWTH ──
 function checkAndHandleCollapse(){
   S.regions.forEach(r=>{
     if(!r.alive) return;
     const avg=(r.res.water+r.res.food+r.res.energy+r.res.land)/4;
-    if(avg < 8){
-      // COLLAPSE
-      r.alive=false;
-      r.phase='collapsed';
-      r.collapseCount++;
-      r.collapseCycle=S.cycle;
-      S.totalCollapses++;
+    if(avg<8){
+      r.alive=false;r.phase='collapsed';r.collapseCount++;r.collapseCycle=S.cycle;S.totalCollapses++;
       r.econPts=Math.max(0,r.econPts-40);
-      // Save collapse memory for learning
-      r.collapseMemory={
-        q: r.q.map(row=>[...row]),
-        lastAction: r.lastAction,
-        worstRes: worstRes(r),
-        avgRes: avg,
-        cause: identifyCollapseCause(r),
-      };
-      // PUNISH the action that led here
-      if(r.lastAction!==null){
-        const s=rsOf(r);
-        r.q[0][r.lastAction]-=0.3; // heavy penalty in critical state
-        r.q[1][r.lastAction]-=0.2;
-      }
-      // BOOST conserve+trade in critical states
-      r.q[0][0]+=0.4; // conserve in critical
-      r.q[0][1]+=0.3; // trade in critical
-      r.q[1][0]+=0.2;
-      r.q[1][1]+=0.2;
+      r.collapseMemory={q:r.q.map(row=>[...row]),lastAction:r.lastAction,worstRes:worstRes(r),avgRes:avg,cause:identifyCollapseCause(r)};
+      if(r.lastAction!==null){r.q[0][r.lastAction]-=0.3;r.q[1][r.lastAction]-=0.2;}
+      r.q[0][0]+=0.4;r.q[0][1]+=0.3;r.q[1][0]+=0.2;r.q[1][1]+=0.2;
       S.alliances=S.alliances.filter(a=>a.a!==r.id&&a.b!==r.id);
       addLog('lc',`💀 ${r.name.toUpperCase()} COLLAPSED — ${r.collapseMemory.cause}`);
-      addBeh(`${r.short} collapsed (${r.collapseMemory.cause}) — Q-table punished, learning initiated`);
-      // Schedule regrowth after 15 cycles
+      addBeh(`${r.short} collapsed (${r.collapseMemory.cause}) — Q-table punished`);
+      spawnShockwave(r.x*wc.width,r.y*wc.height,'#e84848');
+      spawnShockwave(r.x*wc.width,r.y*wc.height,'#e84848');
+      triggerFlash('rgba(232,72,72,0.18)');
+      showToast(`💀 ${r.name} COLLAPSED`,r.color);
       r._regrowthScheduled=S.cycle+15;
     }
   });
@@ -690,39 +846,25 @@ function identifyCollapseCause(r){
 function handleRegrowth(){
   S.regions.forEach(r=>{
     if(r.alive) return;
-    if(!r._regrowthScheduled || S.cycle < r._regrowthScheduled) return;
-    // REGROW
-    r.alive=true;
-    r.phase='regrowth';
-    r.regrowthCount++;
-    r.regrowthCycle=S.cycle;
-    S.totalRegrowths++;
-    r._regrowthScheduled=null;
-    // Restore to minimal viable resources
-    r.res.water =20+Math.random()*15;
-    r.res.food  =18+Math.random()*15;
-    r.res.energy=18+Math.random()*15;
-    r.res.land  =20+Math.random()*15;
-    r.population=Math.max(30,r.population-20);
-    // Regrowth bonus
-    r.econPts+=20;
-    // Boost epsilon to re-explore with new knowledge
-    r.epsilon=Math.min(0.35, r.epsilon+0.2);
+    if(!r._regrowthScheduled||S.cycle<r._regrowthScheduled) return;
+    r.alive=true;r.phase='regrowth';r.regrowthCount++;r.regrowthCycle=S.cycle;S.totalRegrowths++;r._regrowthScheduled=null;
+    r.res.water=20+Math.random()*15;r.res.food=18+Math.random()*15;r.res.energy=18+Math.random()*15;r.res.land=20+Math.random()*15;
+    r.population=Math.max(30,r.population-20);r.econPts+=20;r.epsilon=Math.min(0.35,r.epsilon+0.2);
     addLog('lr',`🌱 ${r.name.toUpperCase()} REGROWS — ${r.collapseCount}x collapse, learning applied`);
-    addBeh(`${r.short} achieved regrowth after collapse — applying learned penalties`);
+    addBeh(`${r.short} achieved regrowth — applying learned penalties`);
+    spawnRipple(r.x*wc.width,r.y*wc.height,'#a0e870');
+    for(let i=0;i<6;i++) spawnFloat(r.x*wc.width+Math.random()*60-30,r.y*wc.height+Math.random()*40-20,'🌱','#a0e870');
+    triggerFlash('rgba(160,232,112,0.1)');
+    showToast(`🌱 ${r.name} REBORN`,r.color);
   });
 }
 
 function doClimate(){
   if(Math.random()>0.16) return;
   const evts=[
-    {n:'DROUGHT',    res:'water', mod:-18,bad:true},
-    {n:'FAMINE',     res:'food',  mod:-20,bad:true},
-    {n:'SOLAR FLARE',res:'energy',mod:-16,bad:true},
-    {n:'FLOOD',      res:'land',  mod:-12,bad:true},
-    {n:'RAINFALL',   res:'water', mod:+22,bad:false},
-    {n:'HARVEST',    res:'food',  mod:+20,bad:false},
-    {n:'GEO SURGE',  res:'energy',mod:+18,bad:false},
+    {n:'DROUGHT',res:'water',mod:-18,bad:true},{n:'FAMINE',res:'food',mod:-20,bad:true},
+    {n:'SOLAR FLARE',res:'energy',mod:-16,bad:true},{n:'FLOOD',res:'land',mod:-12,bad:true},
+    {n:'RAINFALL',res:'water',mod:+22,bad:false},{n:'HARVEST',res:'food',mod:+20,bad:false},{n:'GEO SURGE',res:'energy',mod:+18,bad:false},
   ];
   const e=evts[Math.floor(Math.random()*evts.length)];
   const aff=S.regions.filter(r=>r.alive).sort(()=>Math.random()-0.5).slice(0,1+Math.floor(Math.random()*2));
@@ -734,6 +876,8 @@ function doClimate(){
   const cb=document.getElementById('climate-badge');
   cb.textContent=`${e.bad?'🌩':'☀'} ${e.n}`;
   cb.style.color=e.bad?'var(--warn)':'var(--ok)';
+  if(e.bad) triggerFlash('rgba(240,144,48,0.06)');
+  aff.forEach(r=>spawnFloat(r.x*wc.width,r.y*wc.height,e.bad?'🌩':'☀',e.bad?'#f09030':'#f5c830'));
   setTimeout(()=>{cb.textContent='☀ CLIMATE: STABLE';cb.style.color='var(--ok)';},2500);
 }
 
@@ -746,78 +890,75 @@ function detectEmergent(){
     if(best===0&&r.res.water<35) addBeh(`${r.short} learned CONSERVATION after water crisis`);
     if(best===3&&r.res.food>65&&r.collapseCount===0) addBeh(`${r.short} uses AGGRESSION to guard surplus`);
     if(best===4&&r.totalAlliances>2) addBeh(`${r.short} mastered ALLIANCE diplomacy`);
-    if(r.collapseCount>0&&r.regrowthCount>0&&r.phase!=='collapsed') addBeh(`${r.short} rebuilt (${r.collapseCount} collapse, ${r.regrowthCount} regrowth) — resilient strategy`);
+    if(r.collapseCount>0&&r.regrowthCount>0&&r.phase!=='collapsed') addBeh(`${r.short} rebuilt (${r.collapseCount} collapse, ${r.regrowthCount} regrowth)`);
   });
   S.regions.forEach(r=>S.regions.forEach(o=>{
     if(r.id<o.id&&(r.trust[o.id]||0)>0.55) addBeh(`${r.short}↔${o.short} deep trust (${((r.trust[o.id]||0)*100).toFixed(0)}%)`);
   }));
 }
-
 function addBeh(b){
-  if(!S.emergentBehaviors.includes(b)){
-    S.emergentBehaviors.push(b);
-    if(S.emergentBehaviors.length>12) S.emergentBehaviors.shift();
-  }
+  if(!S.emergentBehaviors.includes(b)){S.emergentBehaviors.push(b);if(S.emergentBehaviors.length>12) S.emergentBehaviors.shift();}
 }
 
-// ── SIM STEP ──
 function simStep(){
   S.cycle++;
   S.regions.forEach(r=>{r.tradeCount=0;r.allianceCount=0;r.conflictCount=0;r.conserveCount=0;r.expandCount=0;r.climateHits=0;});
-  doClimate();
-  handleRegrowth();
-
+  doClimate();handleRegrowth();
   S.regions.forEach(r=>{
     if(!r.alive) return;
     naturalDepletion(r);
-    const s=rsOf(r);
-    const action=pickAction(r);
+    const s=rsOf(r),action=pickAction(r);
     if(action===null) return;
     const{reward,logs}=execAction(r,action);
     const ns=rsOf(r);
     updQ(r,s,action,reward,ns);
-    r.lastAction=action; r.lastReward=reward; r.age++;
+    r.lastAction=action;r.lastReward=reward;r.age++;
     logs.forEach(l=>addLog(l.t,l.m));
+    r._prevPhase=r.phase;
     r.phase=computePhase(r);
   });
-
   checkAndHandleCollapse();
   detectEmergent();
-
-  // Economy pts
-  let maxPts=-Infinity, leader=null;
+  let maxPts=-Infinity,leader=null;
   S.regions.forEach(r=>{
-    const delta=computeDelta(r);
-    r.econDelta=delta;
-    r.econPts=Math.max(r.alive?10:0, r.econPts+delta);
+    const delta=computeDelta(r);r.econDelta=delta;r.econPts=Math.max(r.alive?10:0,r.econPts+delta);
     if(r.alive&&r.econPts>maxPts){maxPts=r.econPts;leader=r;}
   });
-
   S.econHistory.push({cycle:S.cycle,pts:S.regions.map(r=>r.econPts)});
-  if(S.econHistory.length>300) S.econHistory.shift();  // keep last 300 for graph
+  if(S.econHistory.length>300) S.econHistory.shift();
   if(leader) document.getElementById('t-leader').textContent=leader.short;
-
   updateUI();
-  drawWorld();
-  drawGraph();
+  if(graphVisible) drawGraph();
 }
 
 function computeDelta(r){
-  if(!r.alive) return -2; // slow drain while collapsed
-  let pts=0; FACTORS.forEach(f=>{pts+=f.pts(f.compute(r));});
-  return pts;
+  if(!r.alive) return -2;
+  let pts=0;FACTORS.forEach(f=>{pts+=f.pts(f.compute(r));});return pts;
 }
 
 // ── UI ──
-function updateUI(){
-  document.getElementById('t-cycle').textContent=S.cycle;
-  document.getElementById('t-active').textContent=S.regions.filter(r=>r.alive).length;
-  document.getElementById('t-coll').textContent=S.regions.filter(r=>!r.alive).length;
-  document.getElementById('t-regrow').textContent=S.totalRegrowths;
-  document.getElementById('t-trades').textContent=S.totalTrades;
-  document.getElementById('t-alliances').textContent=S.alliances.length;
-  document.getElementById('map-cycle-lbl').textContent=`CYC ${S.cycle}`;
+function bumpStat(id){
+  const el=document.getElementById(id);
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
+function setStatAnimated(id,val,prevKey){
+  const el=document.getElementById(id);
+  const newVal=typeof val==='number'?Math.round(val):val;
+  if(el.textContent===String(newVal)) return;
+  if(prevStatVals[prevKey]!==newVal){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');prevStatVals[prevKey]=newVal;}
+  el.textContent=newVal;
+}
 
+function updateUI(){
+  setStatAnimated('t-cycle',S.cycle,'cycle');
+  setStatAnimated('t-active',S.regions.filter(r=>r.alive).length,'active');
+  setStatAnimated('t-coll',S.regions.filter(r=>!r.alive).length,'coll');
+  setStatAnimated('t-regrow',S.totalRegrowths,'regrow');
+  setStatAnimated('t-trades',S.totalTrades,'trades');
+  setStatAnimated('t-alliances',S.alliances.length,'alliances');
+  document.getElementById('map-cycle-lbl').textContent=`CYC ${S.cycle}`;
   buildOvCards();
   buildResGrid();
   buildRanking();
@@ -834,317 +975,456 @@ function phaseLabel(r){
   if(r.phase==='thriving')  return {txt:'THRIVING ✦',col:'var(--gold2)'};
   return {txt:'STABLE',col:'var(--text2)'};
 }
-
 function resColor(k,v){
-  if(v<15) return '#e84848';
-  if(v<30) return '#f09030';
+  if(v<15) return '#e84848';if(v<30) return '#f09030';
   return {water:'#38b4f0',food:'#5ed468',energy:'#f5c830',land:'#c8784a'}[k];
 }
 
 function buildOvCards(){
   const sorted=[...S.regions].sort((a,b)=>b.econPts-a.econPts);
   const wrap=document.getElementById('ov-cards');
-  wrap.innerHTML='';
+
+  // Create cards on first run, update in-place on subsequent runs to avoid flicker
+  if(wrap.children.length !== sorted.length){
+    wrap.innerHTML='';
+    sorted.forEach(r=>{
+      const card=document.createElement('div');
+      card.dataset.rid=r.id;
+      card.style.setProperty('--rc',r.color);
+      card.innerHTML=`
+        <div class="rc-header">
+          <div class="rc-name-wrap">
+            <div class="rc-name" style="color:${r.color}">${r.name}</div>
+            <div class="rc-phase"></div>
+          </div>
+          <div class="rc-right">
+            <div class="rc-strat"></div>
+            <div class="rc-econ"></div>
+            <div class="rc-delta"></div>
+          </div>
+        </div>
+        <div class="res-bars">
+          ${['water','food','energy','land'].map(k=>`
+            <div class="res-bar-row">
+              <span class="res-icon">${{water:'💧',food:'🌾',energy:'⚡',land:'🗺'}[k]}</span>
+              <span class="res-label">${k.toUpperCase()}</span>
+              <div class="res-track">
+                <div class="res-fill" data-res="${k}"></div>
+                <div class="res-segments">${Array(5).fill(0).map(()=>'<div class="res-seg"></div>').join('')}</div>
+              </div>
+              <span class="res-val" data-resval="${k}"></span>
+              <span class="res-trend" data-restrend="${k}"></span>
+            </div>`).join('')}
+        </div>
+        <div class="rc-footer">
+          <div class="rc-stat rc-pop">👥 <span></span></div>
+          <div class="rc-stat rc-trades">🤝 <span></span></div>
+          <div class="rc-stat rc-coll">💀 <span></span></div>
+          <div class="rc-stat rc-grow">🌱 <span></span></div>
+          <div class="rc-rank" style="margin-left:auto;font-family:var(--font-ui);font-size:12px;color:${r.color}"></div>
+        </div>
+        <div class="rc-extra"></div>
+      `;
+      card.onclick=()=>{S.selectedId=r.id;updateOvCardSelection();buildMibPanels();drawWorld();};
+      wrap.appendChild(card);
+    });
+  }
+
+  // Re-order cards if ranking changed (animate reorder via DOM move)
   sorted.forEach((r,rank)=>{
+    let card=wrap.querySelector(`[data-rid="${r.id}"]`);
+    if(!card) return;
+    if(wrap.children[rank]!==card) wrap.insertBefore(card,wrap.children[rank]||null);
+  });
+
+  // Update values in-place — no innerHTML wipe, no flicker
+  sorted.forEach((r,rank)=>{
+    const card=wrap.querySelector(`[data-rid="${r.id}"]`);
+    if(!card) return;
     const pl=phaseLabel(r);
     const bestA=r.alive?ACTS[r.q[2].indexOf(Math.max(...r.q[2]))]:'—';
-    const card=document.createElement('div');
-    const cardClass='realm-card'
-      +(S.selectedId===r.id?' sel':'')
-      +(r.phase==='collapsed'?' collapsed':'')
-      +(r.phase==='regrowth'?' regrow':'')
-      +(['struggling','critical'].includes(r.phase)?' struggle':'');
-    card.className=cardClass;
-    card.style.setProperty('--rc',r.color);
 
-    // Resource trend arrows
-    const trend=k=>{
-      if(!r.prevRes) return '';
-      const d=r.res[k]-r.prevRes[k];
-      return d>0.3?'<span style="color:var(--ok)">▲</span>':d<-0.3?'<span style="color:var(--danger)">▼</span>':'<span style="color:var(--dim)">—</span>';
-    };
+    // Card class
+    const cardClass='realm-card'+(S.selectedId===r.id?' sel':'')+(r.phase==='collapsed'?' collapsed':'')+(r.phase==='regrowth'?' regrow':'')+((['struggling','critical'].includes(r.phase))?' struggle':'');
+    if(card.className!==cardClass) card.className=cardClass;
 
-    card.innerHTML=`
-      <div class="rc-header">
-        <div class="rc-name-wrap">
-          <div class="rc-name" style="color:${r.color}">${r.name}</div>
-          <div class="rc-phase" style="background:${hexA(pl.col,0.12)};color:${pl.col};border:1px solid ${hexA(pl.col,0.3)}">${pl.txt}</div>
-        </div>
-        <div class="rc-right">
-          <div class="rc-strat" style="background:${hexA(r.color,0.12)};color:${r.color};border:1px solid ${hexA(r.color,0.25)}">${bestA}</div>
-          <div class="rc-econ">${Math.round(r.econPts)}</div>
-          <div class="rc-delta" style="color:${r.econDelta>=0?'var(--ok)':'var(--danger)'}">${r.econDelta>=0?'▲':'▼'}${Math.abs(Math.round(r.econDelta))} pts/cycle</div>
-        </div>
-      </div>
-      <div class="res-bars">
-        ${['water','food','energy','land'].map(k=>`
-          <div class="res-bar-row">
-            <span class="res-icon">${{water:'💧',food:'🌾',energy:'⚡',land:'🗺'}[k]}</span>
-            <span class="res-label">${k.toUpperCase()}</span>
-            <div class="res-track">
-              <div class="res-fill" style="width:${r.res[k]}%;background:linear-gradient(90deg,${hexA(resColor(k,r.res[k]),0.8)},${resColor(k,r.res[k])})">
-              </div>
-              <div class="res-segments">${Array(5).fill(0).map((_,i)=>`<div class="res-seg"></div>`).join('')}</div>
-            </div>
-            <span class="res-val" style="color:${resColor(k,r.res[k])}">${Math.round(r.res[k])}</span>
-            <span class="res-trend">${trend(k)}</span>
-          </div>`).join('')}
-      </div>
-      <div class="rc-footer">
-        <div class="rc-stat">👥 <span>${r.population}</span></div>
-        <div class="rc-stat">🤝 <span>${r.totalTrades}</span></div>
-        <div class="rc-stat">💀 <span>${r.collapseCount}×</span></div>
-        <div class="rc-stat">🌱 <span>${r.regrowthCount}×</span></div>
-        <div style="margin-left:auto;font-family:var(--font-ui);font-size:12px;color:${r.color}">RANK #${rank+1}</div>
-      </div>
-      ${r.phase==='regrowth'?`<div style="font-size:11px;color:#a0e870;font-family:var(--font-body);margin-top:8px;padding:6px 8px;background:rgba(160,232,112,0.06);border-radius:4px;border:1px solid rgba(160,232,112,0.2)">🌱 Rebuilding from collapse — learned penalties applied, exploring new strategies</div>`:''}
-      ${!r.alive&&r._regrowthScheduled?`<div style="font-size:11px;color:var(--warn);font-family:var(--font-body);margin-top:8px;padding:6px 8px;background:rgba(240,144,48,0.06);border-radius:4px;border:1px solid rgba(240,144,48,0.2)">⏳ Regrowth scheduled at cycle ${r._regrowthScheduled} — Q-values updated</div>`:''}
-    `;
-    card.onclick=()=>{S.selectedId=r.id;buildOvCards();buildMibPanels();drawWorld();};
-    wrap.appendChild(card);
+    // Phase badge
+    const phaseEl=card.querySelector('.rc-phase');
+    if(phaseEl.textContent!==pl.txt){
+      phaseEl.textContent=pl.txt;
+      phaseEl.style.background=hexA(pl.col,0.12);
+      phaseEl.style.color=pl.col;
+      phaseEl.style.border=`1px solid ${hexA(pl.col,0.3)}`;
+    }
+
+    // Strategy
+    const stratEl=card.querySelector('.rc-strat');
+    if(stratEl.textContent!==bestA){
+      stratEl.textContent=bestA;
+      stratEl.style.background=hexA(r.color,0.12);
+      stratEl.style.color=r.color;
+      stratEl.style.border=`1px solid ${hexA(r.color,0.25)}`;
+    }
+
+    // Economy pts
+    const econEl=card.querySelector('.rc-econ');
+    const econVal=String(Math.round(r.econPts));
+    if(econEl.textContent!==econVal) econEl.textContent=econVal;
+
+    // Delta
+    const deltaEl=card.querySelector('.rc-delta');
+    const dSign=r.econDelta>=0;
+    const deltaVal=`${dSign?'▲':'▼'}${Math.abs(Math.round(r.econDelta))} pts/cycle`;
+    if(deltaEl.textContent!==deltaVal){
+      deltaEl.textContent=deltaVal;
+      deltaEl.style.color=dSign?'var(--ok)':'var(--danger)';
+    }
+
+    // Resource bars — update width + color only
+    const trend=k=>{if(!r.prevRes)return '';const d=r.res[k]-r.prevRes[k];return d>0.3?'<span style="color:var(--ok)">▲</span>':d<-0.3?'<span style="color:var(--danger)">▼</span>':'<span style="color:var(--dim)">—</span>';};
+    ['water','food','energy','land'].forEach(k=>{
+      const fill=card.querySelector(`[data-res="${k}"]`);
+      const val=card.querySelector(`[data-resval="${k}"]`);
+      const trendEl=card.querySelector(`[data-restrend="${k}"]`);
+      const c=resColor(k,r.res[k]);
+      const w=r.res[k]+'%';
+      if(fill.style.width!==w){
+        fill.style.width=w;
+        fill.style.background=`linear-gradient(90deg,${hexA(c,0.8)},${c})`;
+      }
+      const vStr=String(Math.round(r.res[k]));
+      if(val.textContent!==vStr){val.textContent=vStr;val.style.color=c;}
+      const trendVal=trend(k);
+      if(trendEl.innerHTML!==trendVal) trendEl.innerHTML=trendVal;
+    });
+
+    // Footer stats
+    card.querySelector('.rc-pop span').textContent=r.population;
+    card.querySelector('.rc-trades span').textContent=r.totalTrades;
+    card.querySelector('.rc-coll span').textContent=r.collapseCount+'×';
+    card.querySelector('.rc-grow span').textContent=r.regrowthCount+'×';
+    card.querySelector('.rc-rank').textContent=`RANK #${rank+1}`;
+
+    // Extra message
+    const extra=card.querySelector('.rc-extra');
+    if(r.phase==='regrowth'){
+      extra.style.display='block';
+      extra.style.cssText='font-size:11px;color:#a0e870;font-family:var(--font-body);margin-top:8px;padding:6px 8px;background:rgba(160,232,112,0.06);border-radius:4px;border:1px solid rgba(160,232,112,0.2)';
+      extra.textContent='🌱 Rebuilding from collapse — learned penalties applied, exploring new strategies';
+    } else if(!r.alive&&r._regrowthScheduled){
+      extra.style.display='block';
+      extra.style.cssText='font-size:11px;color:var(--warn);font-family:var(--font-body);margin-top:8px;padding:6px 8px;background:rgba(240,144,48,0.06);border-radius:4px;border:1px solid rgba(240,144,48,0.2)';
+      extra.textContent=`⏳ Regrowth scheduled at cycle ${r._regrowthScheduled}`;
+    } else {
+      extra.style.display='none';
+    }
   });
 }
 
-// ── RESOURCE GRID ──
+function updateOvCardSelection(){
+  const wrap=document.getElementById('ov-cards');
+  const sorted=[...S.regions].sort((a,b)=>b.econPts-a.econPts);
+  sorted.forEach((r)=>{
+    const card=wrap.querySelector(`[data-rid="${r.id}"]`);
+    if(!card) return;
+    const cardClass='realm-card'+(S.selectedId===r.id?' sel':'')+(r.phase==='collapsed'?' collapsed':'')+(r.phase==='regrowth'?' regrow':'')+((['struggling','critical'].includes(r.phase))?' struggle':'');
+    if(card.className!==cardClass) card.className=cardClass;
+  });
+}
+
 function buildResGrid(){
   const wrap=document.getElementById('rg-inner');
-  wrap.innerHTML='';
+  // Create realm boxes once
+  if(!wrap.querySelector('[data-rgid]')){
+    wrap.innerHTML='';
+    S.regions.forEach(r=>{
+      const div=document.createElement('div');div.className='rg-realm';div.dataset.rgid=r.id;
+      div.innerHTML=`
+        <div class="rg-header" style="border-bottom:1px solid ${hexA(r.color,0.25)}">
+          <div><div class="rg-hname" style="color:${r.color}">${r.name}</div>
+          <div class="rg-phase" style="font-family:var(--font-mono);font-size:9px;margin-top:2px"></div></div>
+          <div style="text-align:right">
+            <div class="rg-hecon"></div>
+            <div class="rg-dcycle" style="font-family:var(--font-body);font-size:11px"></div>
+          </div>
+        </div>
+        <div class="rg-body">
+          <div class="rg-res-grid">
+            ${['water','food','energy','land'].map(k=>`
+              <div class="rg-res-box" data-rbox="${k}">
+                <div class="rg-res-top"><span class="rg-res-icon">${{water:'💧',food:'🌾',energy:'⚡',land:'🗺'}[k]}</span><span class="rg-res-name">${k.toUpperCase()}</span></div>
+                <div class="rg-res-val" data-rval="${k}"></div>
+                <div class="rg-res-bar"><div class="rg-res-fill" data-rfill="${k}"></div></div>
+              </div>`).join('')}
+          </div>
+          <div class="rg-factors">
+            ${FACTORS.map((f,fi)=>`<div class="rg-factor"><span class="rg-f-name">${f.icon} ${f.name.split(' ')[0]}</span><span class="rg-f-val" data-fi="${fi}"></span></div>`).join('')}
+          </div>
+        </div>`;
+      wrap.appendChild(div);
+    });
+  }
+  // Update values in-place
   S.regions.forEach(r=>{
+    const div=wrap.querySelector(`[data-rgid="${r.id}"]`);if(!div) return;
     const pl=phaseLabel(r);
-    const div=document.createElement('div');
-    div.className='rg-realm';
-    div.innerHTML=`
-      <div class="rg-header" style="border-bottom:1px solid ${hexA(r.color,0.25)}">
-        <div>
-          <div class="rg-hname" style="color:${r.color}">${r.name}</div>
-          <div style="font-family:var(--font-mono);font-size:9px;color:${pl.col};margin-top:2px">${pl.txt}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="rg-hecon">${Math.round(r.econPts)}</div>
-          <div style="font-family:var(--font-body);font-size:11px;color:${r.econDelta>=0?'var(--ok)':'var(--danger)'}">${r.econDelta>=0?'+':''}${Math.round(r.econDelta)}/cycle</div>
-        </div>
-      </div>
-      <div class="rg-body">
-        <div class="rg-res-grid">
-          ${['water','food','energy','land'].map(k=>{
-            const v=r.res[k]; const c=resColor(k,v);
-            return `<div class="rg-res-box" style="border-color:${hexA(c,0.2)}">
-              <div class="rg-res-top">
-                <span class="rg-res-icon">${{water:'💧',food:'🌾',energy:'⚡',land:'🗺'}[k]}</span>
-                <span class="rg-res-name">${k.toUpperCase()}</span>
-              </div>
-              <div class="rg-res-val" style="color:${c}">${Math.round(v)}</div>
-              <div class="rg-res-bar"><div class="rg-res-fill" style="width:${v}%;background:${c}"></div></div>
-            </div>`;
-          }).join('')}
-        </div>
-        <div class="rg-factors">
-          ${FACTORS.map(f=>{
-            const val=f.compute(r),pts=f.pts(val);
-            return `<div class="rg-factor">
-              <span class="rg-f-name">${f.icon} ${f.name.split(' ')[0]}</span>
-              <span class="rg-f-val ${pts>0?'pos':pts<0?'neg':'neu'}">${pts>0?'+':''}${pts}</span>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    `;
-    wrap.appendChild(div);
+    const ph=div.querySelector('.rg-phase');
+    if(ph.textContent!==pl.txt){ph.textContent=pl.txt;ph.style.color=pl.col;}
+    const ec=div.querySelector('.rg-hecon');
+    const ecv=String(Math.round(r.econPts));
+    if(ec.textContent!==ecv) ec.textContent=ecv;
+    const dc=div.querySelector('.rg-dcycle');
+    const dcv=`${r.econDelta>=0?'+':''}${Math.round(r.econDelta)}/cycle`;
+    if(dc.textContent!==dcv){dc.textContent=dcv;dc.style.color=r.econDelta>=0?'var(--ok)':'var(--danger)';}
+    ['water','food','energy','land'].forEach(k=>{
+      const v=r.res[k],c=resColor(k,v);
+      const box=div.querySelector(`[data-rbox="${k}"]`);
+      if(box) box.style.borderColor=hexA(c,0.2);
+      const val=div.querySelector(`[data-rval="${k}"]`);
+      const vStr=String(Math.round(v));
+      if(val&&val.textContent!==vStr){val.textContent=vStr;val.style.color=c;}
+      const fill=div.querySelector(`[data-rfill="${k}"]`);
+      if(fill){fill.style.width=v+'%';fill.style.background=c;}
+    });
+    FACTORS.forEach((f,fi)=>{
+      const val=f.compute(r),pts=f.pts(val);
+      const el=div.querySelector(`[data-fi="${fi}"]`);
+      if(!el) return;
+      const pStr=`${pts>0?'+':''}${pts}`;
+      if(el.textContent!==pStr){
+        el.textContent=pStr;
+        el.className=`rg-f-val ${pts>0?'pos':pts<0?'neg':'neu'}`;
+      }
+    });
   });
 }
 
-// ── RANKING ──
 function buildRanking(){
   const sorted=[...S.regions].sort((a,b)=>b.econPts-a.econPts);
   const maxPts=Math.max(...sorted.map(r=>r.econPts),1);
   const body=document.getElementById('rank-body');
-  body.innerHTML='';
+  // Create rows once
+  if(body.children.length!==sorted.length){
+    body.innerHTML='';
+    sorted.forEach((r,i)=>{
+      const rank=i+1,rcls=rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
+      const tr=document.createElement('tr');tr.className='rank-row';tr.dataset.rankid=r.id;
+      tr.innerHTML=`
+        <td><div class="rnum ${rcls}" data-rnum>${rank}</div></td>
+        <td><div class="rbadge"><div class="rdot" style="background:${r.color}"></div><span class="rname" style="color:${r.color}">${r.name}</span></div></td>
+        <td><span class="rpts" style="color:${r.color}" data-rpts></span></td>
+        <td><div class="rbar-wrap"><div class="rbar-bg"><div class="rbar-fg" data-rbar style="background:linear-gradient(90deg,${hexA(r.color,0.7)},${r.color})"><span class="rbar-label" data-rbarlbl></span></div></div></div></td>
+        <td><span class="rdelta" data-rdelta></span></td>
+        <td><span style="font-family:var(--font-ui);font-size:12px" data-rwater></span></td>
+        <td><span style="font-family:var(--font-ui);font-size:12px" data-rfood></span></td>
+        <td><span style="font-family:var(--font-ui);font-size:12px" data-renergy></span></td>
+        <td><span style="font-family:var(--font-ui);font-size:12px" data-rland></span></td>
+        <td><span style="color:var(--food);font-family:var(--font-ui);font-size:12px" data-rtrades></span></td>
+        <td><span style="color:var(--valyria);font-size:11px;font-family:var(--font-body)" data-rallies></span></td>
+        <td><span class="rstatus" data-rstatus></span></td>`;
+      body.appendChild(tr);
+    });
+    // RP legend — build once
+    const leg=document.getElementById('rp-legend');
+    if(leg.children.length===0){
+      RP_LEGEND.forEach(item=>{
+        const row=document.createElement('div');row.className='rp-row';
+        row.innerHTML=`<span class="rp-icon">${item.icon}</span><span class="rp-name">${item.name}</span><span class="rp-pts" style="color:${item.pos?'var(--ok)':'var(--danger)'}">${item.pts}</span>`;
+        leg.appendChild(row);
+      });
+    }
+  }
+  // Re-order rows by rank
+  sorted.forEach((r,rank)=>{
+    const row=body.querySelector(`[data-rankid="${r.id}"]`);
+    if(row&&body.children[rank]!==row) body.insertBefore(row,body.children[rank]||null);
+  });
+  // Update in-place
   sorted.forEach((r,i)=>{
     const rank=i+1;
-    const rcls=rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
-    const bw=Math.max(4,(r.econPts/maxPts)*100).toFixed(1);
-    const allies=S.alliances.filter(a=>a.a===r.id||a.b===r.id)
-      .map(a=>S.regions.find(x=>x.id===(a.a===r.id?a.b:a.a)).short).join(',') || '—';
+    const tr=body.querySelector(`[data-rankid="${r.id}"]`);if(!tr) return;
+    const bw=Math.max(4,(r.econPts/maxPts)*100).toFixed(1)+'%';
+    const allies=S.alliances.filter(a=>a.a===r.id||a.b===r.id).map(a=>S.regions.find(x=>x.id===(a.a===r.id?a.b:a.a)).short).join(',') || '—';
     const pl=phaseLabel(r);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><div class="rnum ${rcls}">${rank}</div></td>
-      <td><div class="rbadge"><div class="rdot" style="background:${r.color}"></div><span class="rname" style="color:${r.color}">${r.name}</span></div></td>
-      <td><span class="rpts" style="color:${r.color}">${Math.round(r.econPts)}</span></td>
-      <td><div class="rbar-wrap"><div class="rbar-bg"><div class="rbar-fg" style="width:${bw}%;background:linear-gradient(90deg,${hexA(r.color,0.7)},${r.color})"><span class="rbar-label">${Math.round(r.econPts)}</span></div></div></div></td>
-      <td><span class="rdelta" style="color:${r.econDelta>=0?'var(--ok)':'var(--danger)'}">${r.econDelta>=0?'▲':'▼'}${Math.abs(Math.round(r.econDelta))}</span></td>
-      <td style="color:${resColor('water',r.res.water)};font-family:var(--font-ui);font-size:12px">${Math.round(r.res.water)}</td>
-      <td style="color:${resColor('food',r.res.food)};font-family:var(--font-ui);font-size:12px">${Math.round(r.res.food)}</td>
-      <td style="color:${resColor('energy',r.res.energy)};font-family:var(--font-ui);font-size:12px">${Math.round(r.res.energy)}</td>
-      <td style="color:${resColor('land',r.res.land)};font-family:var(--font-ui);font-size:12px">${Math.round(r.res.land)}</td>
-      <td style="color:var(--food);font-family:var(--font-ui);font-size:12px">${r.totalTrades}</td>
-      <td style="color:var(--valyria);font-size:11px;font-family:var(--font-body)">${allies}</td>
-      <td><span class="rstatus" style="color:${pl.col}">${pl.txt}</span></td>
-    `;
-    body.appendChild(tr);
+    const set=(sel,val,prop,style)=>{const el=tr.querySelector(sel);if(!el)return;if(el[prop||'textContent']!==val){el[prop||'textContent']=val;if(style)Object.assign(el.style,style);}};
+    set('[data-rnum]',String(rank));
+    set('[data-rpts]',String(Math.round(r.econPts)));
+    const bar=tr.querySelector('[data-rbar]');
+    if(bar&&bar.style.width!==bw) bar.style.width=bw;
+    set('[data-rbarlbl]',String(Math.round(r.econPts)));
+    const dv=`${r.econDelta>=0?'▲':'▼'}${Math.abs(Math.round(r.econDelta))}`;
+    set('[data-rdelta]',dv,'textContent',{color:r.econDelta>=0?'var(--ok)':'var(--danger)'});
+    set('[data-rwater]',String(Math.round(r.res.water)),'textContent',{color:resColor('water',r.res.water)});
+    set('[data-rfood]',String(Math.round(r.res.food)),'textContent',{color:resColor('food',r.res.food)});
+    set('[data-renergy]',String(Math.round(r.res.energy)),'textContent',{color:resColor('energy',r.res.energy)});
+    set('[data-rland]',String(Math.round(r.res.land)),'textContent',{color:resColor('land',r.res.land)});
+    set('[data-rtrades]',String(r.totalTrades));
+    set('[data-rallies]',allies);
+    const stEl=tr.querySelector('[data-rstatus]');
+    if(stEl&&stEl.textContent!==pl.txt){stEl.textContent=pl.txt;stEl.style.color=pl.col;}
   });
-  // RP legend once
-  const leg=document.getElementById('rp-legend');
-  if(leg.children.length===0){
-    RP_LEGEND.forEach(item=>{
-      const row=document.createElement('div');
-      row.className='rp-row';
-      row.innerHTML=`<span class="rp-icon">${item.icon}</span><span class="rp-name">${item.name}</span>
-        <span class="rp-pts" style="color:${item.pos?'var(--ok)':'var(--danger)'}">${item.pts}</span>`;
-      leg.appendChild(row);
-    });
-  }
 }
 
-// ── MIB PANELS ──
 function buildMibPanels(){
   // Alliances
   const ap=document.getElementById('mib-alliances');
-  if(S.alliances.length===0){ap.innerHTML='<span style="color:var(--dim)">No alliances yet</span>';}
-  else ap.innerHTML=S.alliances.map(al=>{
-    const r1=S.regions.find(x=>x.id===al.a),r2=S.regions.find(x=>x.id===al.b);
-    const t=((r1.trust[r2.id]||0)*100).toFixed(0);
-    return `<div class="al-chip">
-      <span style="width:8px;height:8px;border-radius:50%;background:${r1.color};display:inline-block"></span>
-      <span style="color:${r1.color}">${r1.short}</span>⚔
-      <span style="width:8px;height:8px;border-radius:50%;background:${r2.color};display:inline-block"></span>
-      <span style="color:${r2.color}">${r2.short}</span>
-      <span style="color:var(--dim)">${t}%</span>
-    </div>`;
-  }).join('');
-
-  // Q-table
+  const alStr=S.alliances.length===0?'__empty__':S.alliances.map(al=>al.a+'-'+al.b).join(',');
+  if(ap.dataset.last!==alStr){
+    ap.dataset.last=alStr;
+    if(S.alliances.length===0){ap.innerHTML='<span style="color:var(--dim)">No alliances yet</span>';}
+    else ap.innerHTML=S.alliances.map(al=>{
+      const r1=S.regions.find(x=>x.id===al.a),r2=S.regions.find(x=>x.id===al.b);
+      const t=((r1.trust[r2.id]||0)*100).toFixed(0);
+      return `<div class="al-chip">
+        <span style="width:8px;height:8px;border-radius:50%;background:${r1.color};display:inline-block"></span>
+        <span style="color:${r1.color}">${r1.short}</span>⚔
+        <span style="width:8px;height:8px;border-radius:50%;background:${r2.color};display:inline-block"></span>
+        <span style="color:${r2.color}">${r2.short}</span>
+        <span style="color:var(--dim)">${t}%</span></div>`;
+    }).join('');
+  }
+  // Q-table — only rebuild when selected realm or cycle changes (mod 5)
   const qp=document.getElementById('mib-qtable');
-  if(S.selectedId===null){qp.innerHTML='<span style="color:var(--dim)">Click realm on map</span>';return;}
-  const r=S.regions.find(x=>x.id===S.selectedId);
-  const sts=['CRIT','LOW','MED','HIGH'];
-  let h=`<div style="font-family:var(--font-ui);font-size:11px;color:${r.color};margin-bottom:5px;font-weight:700">${r.name} ${r.phase==='collapsed'?'(COLLAPSED)':''}</div>`;
-  h+=`<div style="display:grid;grid-template-columns:34px repeat(5,1fr);gap:2px;font-size:9px;font-family:var(--font-mono)">`;
-  h+=`<div></div>${ACTS.map(a=>`<div style="color:var(--dim);text-align:center">${a.slice(0,3)}</div>`).join('')}`;
-  r.q.forEach((row,si)=>{
-    const mv=Math.max(...row);
-    h+=`<div style="color:var(--dim);font-size:9px;align-self:center">${sts[si]}</div>`;
-    row.forEach((v,ai)=>{
-      const isBest=Math.abs(v-mv)<0.001;
-      h+=`<div style="background:${isBest?hexA(r.color,0.25):'rgba(255,255,255,0.02)'};border:1px solid ${isBest?r.color:'transparent'};border-radius:2px;padding:2px;text-align:center;color:${isBest?r.color:'var(--dim)'};font-size:9px">${v.toFixed(2)}</div>`;
-    });
-  });
-  h+=`</div>`;
-  h+=`<div style="font-size:10px;color:var(--dim);margin-top:5px;font-family:var(--font-body)">Strategy: <span style="color:${r.color}">${r.alive?ACTS[r.q[2].indexOf(Math.max(...r.q[2]))]:'REBUILDING'}</span> · ε:${(r.epsilon*100).toFixed(0)}% · collapses:${r.collapseCount}</div>`;
-  qp.innerHTML=h;
-
-  // Behaviors
+  const qKey=`${S.selectedId}-${Math.floor(S.cycle/3)}`;
+  if(qp.dataset.last!==qKey){
+    qp.dataset.last=qKey;
+    if(S.selectedId===null){qp.innerHTML='<span style="color:var(--dim)">Click realm on map</span>';}
+    else{
+      const r=S.regions.find(x=>x.id===S.selectedId);
+      const sts=['CRIT','LOW','MED','HIGH'];
+      let h=`<div style="font-family:var(--font-ui);font-size:11px;color:${r.color};margin-bottom:5px;font-weight:700">${r.name} ${r.phase==='collapsed'?'(COLLAPSED)':''}</div>`;
+      h+=`<div style="display:grid;grid-template-columns:34px repeat(5,1fr);gap:2px;font-size:9px;font-family:var(--font-mono)">`;
+      h+=`<div></div>${ACTS.map(a=>`<div style="color:var(--dim);text-align:center">${a.slice(0,3)}</div>`).join('')}`;
+      r.q.forEach((row,si)=>{
+        const mv=Math.max(...row);
+        h+=`<div style="color:var(--dim);font-size:9px;align-self:center">${sts[si]}</div>`;
+        row.forEach((v,ai)=>{
+          const isBest=Math.abs(v-mv)<0.001;
+          h+=`<div style="background:${isBest?hexA(r.color,0.25):'rgba(255,255,255,0.02)'};border:1px solid ${isBest?r.color:'transparent'};border-radius:2px;padding:2px;text-align:center;color:${isBest?r.color:'var(--dim)'};font-size:9px">${v.toFixed(2)}</div>`;
+        });
+      });
+      h+=`</div><div style="font-size:10px;color:var(--dim);margin-top:5px;font-family:var(--font-body)">Strategy: <span style="color:${r.color}">${r.alive?ACTS[r.q[2].indexOf(Math.max(...r.q[2]))]:'REBUILDING'}</span> · ε:${(r.epsilon*100).toFixed(0)}% · collapses:${r.collapseCount}</div>`;
+      qp.innerHTML=h;
+    }
+  }
+  // Behaviors — only rebuild when list changes
   const bp=document.getElementById('mib-behaviors');
-  bp.innerHTML=S.emergentBehaviors.length>0
-    ?S.emergentBehaviors.slice(-6).map(b=>`<div style="color:var(--gold);margin-bottom:3px">▸ ${b}</div>`).join('')
-    :'<span style="color:var(--dim)">Observing...</span>';
+  const behKey=S.emergentBehaviors.join('|');
+  if(bp.dataset.last!==behKey){
+    bp.dataset.last=behKey;
+    bp.innerHTML=S.emergentBehaviors.length>0
+      ?S.emergentBehaviors.slice(-6).map(b=>`<div style="color:var(--gold);margin-bottom:3px">▸ ${b}</div>`).join('')
+      :'<span style="color:var(--dim)">Observing...</span>';
+  }
 }
 
-// ── ANALYSIS ──
 function buildAnalysis(){
   if(S.cycle<10) return;
+  const wrap=document.getElementById('ana-inner');
+  // Only rebuild every 10 cycles to avoid flicker
+  if(wrap.dataset.lastCycle && Math.floor(S.cycle/10)===Math.floor(parseInt(wrap.dataset.lastCycle)/10)) return;
+  wrap.dataset.lastCycle=S.cycle;
   const sorted=[...S.regions].sort((a,b)=>b.econPts-a.econPts);
   const leader=sorted[0];
   const collapsed=S.regions.filter(r=>!r.alive);
   const regrown=S.regions.filter(r=>r.regrowthCount>0);
-  const wrap=document.getElementById('ana-inner');
   let h='';
-
   h+=`<div class="ins-card"><div class="ins-hd">🏆 DOMINANT REALM</div><div class="ins-bd">
-    <em>${leader.name}</em> leads with <em>${Math.round(leader.econPts)} pts</em>. 
-    Dominant strategy: <em>${ACTS[leader.q[2].indexOf(Math.max(...leader.q[2]))]}</em>. 
+    <em>${leader.name}</em> leads with <em>${Math.round(leader.econPts)} pts</em>.
+    Dominant strategy: <em>${ACTS[leader.q[2].indexOf(Math.max(...leader.q[2]))]}</em>.
     ${leader.totalTrades>5?`${leader.totalTrades} trade deals executed. `:''}
     ${S.alliances.some(a=>a.a===leader.id||a.b===leader.id)?'Alliance bonuses active. ':''}
     Resources: 💧${Math.round(leader.res.water)} 🌾${Math.round(leader.res.food)} ⚡${Math.round(leader.res.energy)} 🗺${Math.round(leader.res.land)}
   </div></div>`;
-
   if(collapsed.length>0){
     h+=`<div class="ins-card" style="border-color:rgba(232,72,72,0.25)"><div class="ins-hd" style="color:var(--danger)">💀 COLLAPSED REALMS</div><div class="ins-bd">
-      ${collapsed.map(r=>`<em>${r.name}</em>: collapsed ${r.collapseCount}× — <span class="highlight">${r.collapseMemory?.cause||'resource depletion'}</span>. 
-        Q-table punished action <em>${r.lastAction!==null?ACTS[r.lastAction]:'unknown'}</em>. 
+      ${collapsed.map(r=>`<em>${r.name}</em>: collapsed ${r.collapseCount}× — <span class="highlight">${(r.collapseMemory&&r.collapseMemory.cause)||'resource depletion'}</span>.
+        Q-table punished action <em>${r.lastAction!==null?ACTS[r.lastAction]:'unknown'}</em>.
         Regrowth ${r._regrowthScheduled?'at cycle '+r._regrowthScheduled:'pending'}.`).join('<br><br>')}
     </div></div>`;
   }
-
   if(regrown.length>0){
     h+=`<div class="ins-card" style="border-color:rgba(160,232,112,0.25)"><div class="ins-hd" style="color:#a0e870">🌱 REGROWTH LEARNING</div><div class="ins-bd">
-      ${regrown.map(r=>`<em>${r.name}</em> has regrown ${r.regrowthCount}× after ${r.collapseCount} collapse(s). 
-        Now favors <em>${ACTS[r.q[2].indexOf(Math.max(...r.q[2]))]}</em> over prior failed strategies. 
+      ${regrown.map(r=>`<em>${r.name}</em> has regrown ${r.regrowthCount}× after ${r.collapseCount} collapse(s).
+        Now favors <em>${ACTS[r.q[2].indexOf(Math.max(...r.q[2]))]}</em>.
         Economy: <em>${Math.round(r.econPts)} pts</em>.`).join('<br><br>')}
-      <br><br><em>RL Insight:</em> Post-collapse Q-value updates redirect agents away from depleting strategies. 
-      Regrown realms show higher CONSERVE/TRADE Q-values — validating that collapse serves as a hard negative reinforcement signal.
+      <br><br><em>RL Insight:</em> Post-collapse Q-value updates redirect agents away from depleting strategies.
     </div></div>`;
   }
-
   const sd={};
   S.regions.forEach(r=>{if(r.alive){const a=ACTS[r.q[2].indexOf(Math.max(...r.q[2]))];sd[a]=(sd[a]||0)+1;}});
   h+=`<div class="ins-card"><div class="ins-hd">📊 STRATEGY DISTRIBUTION</div><div class="ins-bd">
     ${Object.entries(sd).map(([a,n])=>`<em>${a}</em>: ${n} realm(s). `).join('')}
-    <br><br>Aggressive RAID strategies show high early rewards but collapse-prone behavior — 
-    realms that raided most collapsed first. Post-collapse Q-tables suppress raid in critical states.
+    <br><br>Aggressive RAID strategies show high early rewards but collapse-prone behavior.
     <br><em>Real-world parallel:</em> Extractive resource policies yield short-term gains but destroy long-term stability.
   </div></div>`;
-
   h+=`<div class="ins-card"><div class="ins-hd">🧠 RL CONVERGENCE</div><div class="ins-bd">
     Avg exploration ε: <em>${(S.regions.reduce((s,r)=>s+r.epsilon,0)/5*100).toFixed(1)}%</em>.<br>
     Total collapses: <em>${S.totalCollapses}</em> · Total regrowths: <em>${S.totalRegrowths}</em><br>
-    Each collapse injects a −0.3 Q-penalty for the triggering action in critical states and a +0.4 boost for CONSERVE —
-    forcing agents to <em>learn resilience through failure</em> rather than pre-programmed rules.
+    Each collapse injects a −0.3 Q-penalty for the triggering action in critical states and a +0.4 boost for CONSERVE.
   </div></div>`;
-
   wrap.innerHTML=h;
 }
 
-// ── WORLD MAP ──
-const wc=document.getElementById('worldCanvas');
-const wctx=wc.getContext('2d');
-
 function resizeCanvas(){
   wc.width=wc.parentElement.clientWidth;
-  // subtract topbar, infobar, evlog heights from parent
   const parent=wc.parentElement;
-  const usedH=parent.querySelector('.map-topbar').offsetHeight
-    +parent.querySelector('.map-infobar').offsetHeight
-    +parent.querySelector('.evlog').offsetHeight;
+  const usedH=parent.querySelector('.map-topbar').offsetHeight+parent.querySelector('.map-infobar').offsetHeight+parent.querySelector('.evlog').offsetHeight;
   wc.height=parent.clientHeight-usedH;
-  drawWorld();
-  drawGraph();
 }
-window.addEventListener('resize',resizeCanvas);
+window.addEventListener('resize',()=>{resizeCanvas();drawGraph();});
 setTimeout(resizeCanvas,120);
+
+// Main animated render loop
+function renderLoop(){
+  wAnimT += 0.016;
+  drawWorld();
+  requestAnimationFrame(renderLoop);
+}
 
 function drawWorld(){
   if(!wc.width||!wc.height) return;
-  const W=wc.width,H=wc.height;
+  const W=wc.width,H=wc.height,T=wAnimT;
   wctx.clearRect(0,0,W,H);
 
-  // BG
+  // BG gradient
   const bg=wctx.createRadialGradient(W*.5,H*.45,0,W*.5,H*.45,Math.max(W,H)*.7);
-  bg.addColorStop(0,'#0d1428'); bg.addColorStop(1,'#060810');
-  wctx.fillStyle=bg; wctx.fillRect(0,0,W,H);
+  bg.addColorStop(0,'#0d1428');bg.addColorStop(1,'#060810');
+  wctx.fillStyle=bg;wctx.fillRect(0,0,W,H);
 
-  // grid
-  wctx.strokeStyle='rgba(24,38,58,0.55)'; wctx.lineWidth=1;
-  for(let x=0;x<W;x+=55){wctx.beginPath();wctx.moveTo(x,0);wctx.lineTo(x,H);wctx.stroke();}
-  for(let y=0;y<H;y+=55){wctx.beginPath();wctx.moveTo(0,y);wctx.lineTo(W,y);wctx.stroke();}
+  // Animated grid with subtle drift
+  wctx.strokeStyle='rgba(24,38,58,0.45)';wctx.lineWidth=1;
+  const gridShift=Math.sin(T*0.3)*4;
+  for(let x=0;x<W;x+=55){wctx.beginPath();wctx.moveTo(x+gridShift,0);wctx.lineTo(x+gridShift,H);wctx.stroke();}
+  for(let y=0;y<H;y+=55){wctx.beginPath();wctx.moveTo(0,y+gridShift*0.5);wctx.lineTo(W,y+gridShift*0.5);wctx.stroke();}
 
-  // Alliance lines
+  // Alliance lines — animated glow
   S.alliances.forEach(al=>{
     const r1=S.regions.find(x=>x.id===al.a),r2=S.regions.find(x=>x.id===al.b);
     const x1=r1.x*W,y1=r1.y*H,x2=r2.x*W,y2=r2.y*H;
-    wctx.strokeStyle='rgba(200,168,76,0.28)';wctx.lineWidth=2.5;wctx.setLineDash([8,5]);
+    const pulse=0.2+0.12*Math.sin(T*1.5+al.formed*0.5);
+    wctx.strokeStyle=`rgba(200,168,76,${pulse})`;wctx.lineWidth=2.5;wctx.setLineDash([8,5]);
     wctx.beginPath();wctx.moveTo(x1,y1);wctx.lineTo(x2,y2);wctx.stroke();wctx.setLineDash([]);
+    // Animated dot traveling along line
+    const t2=(T*0.4+al.formed*0.3)%1;
+    const dx=x2-x1,dy=y2-y1;
+    wctx.fillStyle=`rgba(240,204,106,0.8)`;
+    wctx.beginPath();wctx.arc(x1+dx*t2,y1+dy*t2,3,0,Math.PI*2);wctx.fill();
     const mx=(x1+x2)/2,my=(y1+y2)/2;
     wctx.fillStyle='rgba(200,168,76,0.5)';wctx.font='12px sans-serif';wctx.textAlign='center';wctx.fillText('⚔',mx,my);
   });
 
-  // Trade lines
-  S.recentTrades.slice(0,5).forEach((t,i)=>{
-    const r1=S.regions.find(r=>r.short===t.from),r2=S.regions.find(r=>r.short===t.to);
+  // Trade lines — animated particles
+  S.recentTrades.slice(0,5).forEach((tr,i)=>{
+    const r1=S.regions.find(r=>r.short===tr.from),r2=S.regions.find(r=>r.short===tr.to);
     if(!r1||!r2) return;
     const a=0.7-i*0.12;
     wctx.strokeStyle=`rgba(94,212,104,${a})`;wctx.lineWidth=1.8;wctx.setLineDash([5,4]);
     wctx.beginPath();wctx.moveTo(r1.x*W,r1.y*H);wctx.lineTo(r2.x*W,r2.y*H);wctx.stroke();wctx.setLineDash([]);
+    // Animated bead
+    const bt=((T*0.6-i*0.15)%1+1)%1;
+    wctx.fillStyle=`rgba(94,212,104,${a*0.9})`;
+    wctx.beginPath();wctx.arc(r1.x*W+(r2.x-r1.x)*W*bt,r1.y*H+(r2.y-r1.y)*H*bt,3.5,0,Math.PI*2);wctx.fill();
     const ang=Math.atan2((r2.y-r1.y)*H,(r2.x-r1.x)*W);
     const mx=(r1.x+r2.x)/2*W,my=(r1.y+r2.y)/2*H;
     wctx.fillStyle=`rgba(94,212,104,${a})`;
@@ -1156,12 +1436,35 @@ function drawWorld(){
   // Conflict lines
   S.regions.forEach(r=>S.regions.forEach(o=>{
     if(r.id>=o.id) return;
-    if((r.trust[o.id]||0)<-0.3){
-      wctx.strokeStyle=`rgba(232,72,72,${Math.min(0.4,Math.abs(r.trust[o.id]||0)*0.45)})`;
+    const trust=r.trust[o.id]||0;
+    if(trust<-0.3){
+      const flicker=Math.abs(Math.sin(T*8+r.id))*0.2;
+      wctx.strokeStyle=`rgba(232,72,72,${Math.min(0.4+flicker,0.55)*Math.abs(trust)*0.8})`;
       wctx.lineWidth=1;wctx.setLineDash([2,6]);
       wctx.beginPath();wctx.moveTo(r.x*W,r.y*H);wctx.lineTo(o.x*W,o.y*H);wctx.stroke();wctx.setLineDash([]);
     }
   }));
+
+  // Shockwaves
+  shockwaves = shockwaves.filter(sw=>{
+    sw.r += (sw.maxR||80) * 0.06;sw.life--;
+    if(sw.life<=0) return false;
+    const a=(sw.life/sw.maxLife)*0.6;
+    wctx.strokeStyle=hexA(sw.color,a);wctx.lineWidth=2+a*2;
+    wctx.beginPath();wctx.arc(sw.x,sw.y,sw.r,0,Math.PI*2);wctx.stroke();
+    return true;
+  });
+  shockwaves.maxR = 80;
+
+  // Ripples
+  ripples = ripples.filter(rp=>{
+    rp.r += (rp.maxR-rp.r)*0.1;rp.life--;
+    if(rp.life<=0) return false;
+    const a=(rp.life/rp.maxLife)*0.4;
+    wctx.strokeStyle=hexA(rp.color,a);wctx.lineWidth=1.5;
+    wctx.beginPath();wctx.arc(rp.x,rp.y,rp.r,0,Math.PI*2);wctx.stroke();
+    return true;
+  });
 
   // Realms
   S.regions.forEach(r=>{
@@ -1169,77 +1472,116 @@ function drawWorld(){
     const avg=(r.res.water+r.res.food+r.res.energy+r.res.land)/4;
     const health=avg/100;
     const bR=28+(r.population/200)*18;
+    const pulse=Math.sin(T*1.2+r.id*1.3);
 
     if(!r.alive){
-      // COLLAPSED
-      wctx.strokeStyle='rgba(232,72,72,0.25)';wctx.lineWidth=1;
-      wctx.fillStyle='rgba(232,72,72,0.04)';
+      // COLLAPSED — pulsing red skull
+      const a=0.08+0.04*Math.sin(T*2+r.id);
+      wctx.strokeStyle=`rgba(232,72,72,0.25)`;wctx.lineWidth=1;
+      wctx.fillStyle=`rgba(232,72,72,${a})`;
       wctx.beginPath();wctx.arc(x,y,bR,0,Math.PI*2);wctx.fill();wctx.stroke();
-      // pulsing rebuild ring if scheduled
       if(r._regrowthScheduled){
         const prog=1-(r._regrowthScheduled-S.cycle)/15;
-        wctx.strokeStyle=`rgba(160,232,112,${0.2+prog*0.3})`;wctx.lineWidth=2;wctx.setLineDash([4,4]);
-        wctx.beginPath();wctx.arc(x,y,bR+8+prog*6,0,Math.PI*2*prog);wctx.stroke();wctx.setLineDash([]);
+        const pa=0.2+prog*0.35;
+        wctx.strokeStyle=`rgba(160,232,112,${pa})`;wctx.lineWidth=2.5;
+        wctx.beginPath();
+        wctx.arc(x,y,bR+8+pulse*4,0,Math.PI*2*Math.max(0,prog));
+        wctx.stroke();
+        // orbiting sparkle
+        const ang=T*2;
+        wctx.fillStyle=`rgba(160,232,112,0.8)`;
+        wctx.beginPath();wctx.arc(x+Math.cos(ang)*(bR+8),y+Math.sin(ang)*(bR+8),3,0,Math.PI*2);wctx.fill();
       }
       wctx.fillStyle='rgba(232,72,72,0.5)';wctx.font='16px sans-serif';wctx.textAlign='center';wctx.fillText('💀',x,y+6);
       wctx.font=`700 10px Cinzel,serif`;wctx.fillStyle='rgba(200,80,70,0.5)';wctx.fillText(r.short,x,y+bR+16);
       return;
     }
 
-    // Regrowth glow
+    // Regrowth pulse
     if(r.phase==='regrowth'){
-      const t=Date.now()/1000;
-      wctx.strokeStyle=`rgba(160,232,112,${0.2+0.15*Math.sin(t*2)})`;wctx.lineWidth=3;
-      wctx.beginPath();wctx.arc(x,y,bR+12,0,Math.PI*2);wctx.stroke();
+      const pulseR=bR+12+pulse*5;
+      wctx.strokeStyle=`rgba(160,232,112,${0.15+0.12*Math.abs(pulse)})`;wctx.lineWidth=3;
+      wctx.beginPath();wctx.arc(x,y,pulseR,0,Math.PI*2);wctx.stroke();
+      // mini sparkles orbiting
+      for(let i=0;i<4;i++){
+        const ang=T*1.5+i*Math.PI/2;const sr=bR+16;
+        wctx.fillStyle='rgba(160,232,112,0.7)';
+        wctx.beginPath();wctx.arc(x+Math.cos(ang)*sr,y+Math.sin(ang)*sr,2,0,Math.PI*2);wctx.fill();
+      }
     }
 
-    // Glow halo
+    // Halo glow — animated breathing
     const hC=r.phase==='critical'?'#e84848':r.phase==='struggling'?'#f09030':r.color;
+    const glowA=0.12+0.06*pulse;
     const gr=wctx.createRadialGradient(x,y,bR*.3,x,y,bR*2.5);
-    gr.addColorStop(0,hexA(hC,0.16));gr.addColorStop(1,'transparent');
+    gr.addColorStop(0,hexA(hC,glowA*1.4));gr.addColorStop(1,'transparent');
     wctx.fillStyle=gr;wctx.beginPath();wctx.arc(x,y,bR*2.5,0,Math.PI*2);wctx.fill();
 
-    // Selected
+    // Selection ring — spinning dashes
     if(S.selectedId===r.id){
-      wctx.strokeStyle='rgba(240,204,106,0.6)';wctx.lineWidth=2;wctx.setLineDash([5,3]);
-      wctx.beginPath();wctx.arc(x,y,bR+10,0,Math.PI*2);wctx.stroke();wctx.setLineDash([]);
+      const dashPhase=T*2;
+      wctx.save();wctx.translate(x,y);wctx.rotate(dashPhase);
+      wctx.strokeStyle='rgba(240,204,106,0.7)';wctx.lineWidth=2;wctx.setLineDash([6,4]);
+      wctx.beginPath();wctx.arc(0,0,bR+10,0,Math.PI*2);wctx.stroke();
+      wctx.setLineDash([]);wctx.restore();
     }
 
     // Resource arcs
     [{k:'water',c:'#38b4f0'},{k:'food',c:'#5ed468'},{k:'energy',c:'#f5c830'},{k:'land',c:'#c8784a'}].forEach(({k,c},i)=>{
-      const f=r.res[k]/100;
-      const s0=(i*Math.PI/2)-Math.PI/2;
-      wctx.strokeStyle=hexA(resColor(k,r.res[k]),0.4+f*0.5);wctx.lineWidth=6;
+      const f=r.res[k]/100;const s0=(i*Math.PI/2)-Math.PI/2;
+      const arcPulse=0.4+f*(0.5+0.05*Math.sin(T*2+i));
+      wctx.strokeStyle=hexA(resColor(k,r.res[k]),arcPulse);wctx.lineWidth=6;
       wctx.beginPath();wctx.arc(x,y,bR+6,s0,s0+(Math.PI/2)*0.82*f);wctx.stroke();
     });
 
     // Body
-    wctx.fillStyle=hexA(r.color,0.18);wctx.strokeStyle=r.color;wctx.lineWidth=2;
+    wctx.fillStyle=hexA(r.color,0.18+0.03*pulse);wctx.strokeStyle=r.color;wctx.lineWidth=2;
     wctx.beginPath();wctx.arc(x,y,bR,0,Math.PI*2);wctx.fill();wctx.stroke();
 
     // Icons
     const bestA=r.q[2].indexOf(Math.max(...r.q[2]));
     wctx.font='14px sans-serif';wctx.textAlign='center';wctx.fillText(AICO[bestA],x,y-4);
-    wctx.fillStyle='rgba(240,204,106,0.9)';wctx.font=`bold 11px Share Tech Mono`;
+    wctx.fillStyle='rgba(240,204,106,0.95)';wctx.font=`bold 11px Share Tech Mono`;
     wctx.fillText(`${Math.round(r.econPts)}⚙`,x,y+11);
-
-    // Name
     wctx.font=`700 10px Cinzel,serif`;wctx.fillStyle='rgba(192,208,224,0.9)';wctx.fillText(r.short,x,y+bR+17);
 
-    // Health bar
+    // Health bar with animated glow
     const bx=x-20,by=y+bR+21;
     wctx.fillStyle='rgba(0,0,0,0.4)';wctx.fillRect(bx,by,40,5);
-    wctx.fillStyle=health>0.55?'#5ed468':health>0.3?'#f09030':'#e84848';
-    wctx.fillRect(bx,by,40*health,5);
+    const hbc=health>0.55?'#5ed468':health>0.3?'#f09030':'#e84848';
+    wctx.fillStyle=hbc;wctx.fillRect(bx,by,40*health,5);
+    if(health<0.3){
+      wctx.fillStyle=`rgba(232,72,72,${0.3+0.2*Math.abs(pulse)})`;
+      wctx.fillRect(bx,by,40*health,5);
+    }
     // Phase dot
     const pl=phaseLabel(r);
     wctx.fillStyle=pl.col;wctx.beginPath();wctx.arc(x+24,by+2.5,3,0,Math.PI*2);wctx.fill();
   });
 
+  // Floating texts
+  floatingTexts = floatingTexts.filter(ft=>{
+    ft.y+=ft.vy;ft.life--;
+    if(ft.life<=0) return false;
+    const a=Math.min(1,ft.life/ft.maxLife*2.5);
+    const scale=1+0.3*(1-ft.life/ft.maxLife);
+    wctx.save();wctx.globalAlpha=a;
+    wctx.font=`bold ${Math.round(14*scale)}px Share Tech Mono`;
+    wctx.fillStyle=ft.color;wctx.textAlign='center';
+    wctx.fillText(ft.text,ft.x,ft.y);wctx.restore();
+    return true;
+  });
+
   // Legend
   const lx=16,ly=H-72;
-  wctx.fillStyle='rgba(6,8,16,0.7)';wctx.fillRect(lx-4,ly-4,160,72);wctx.strokeStyle='rgba(24,38,58,0.8)';wctx.lineWidth=1;wctx.strokeRect(lx-4,ly-4,160,72);
-  const leg=[{c:'rgba(94,212,104,0.7)',l:'— TRADE',dash:false},{c:'rgba(200,168,76,0.5)',l:'— ALLIANCE',dash:true},{c:'rgba(232,72,72,0.5)',l:'-- CONFLICT',dash:true},{c:'rgba(160,232,112,0.6)',l:'○ REGROWTH',dash:false}];
+  wctx.fillStyle='rgba(6,8,16,0.7)';wctx.fillRect(lx-4,ly-4,160,72);
+  wctx.strokeStyle='rgba(24,38,58,0.8)';wctx.lineWidth=1;wctx.strokeRect(lx-4,ly-4,160,72);
+  const leg=[
+    {c:'rgba(94,212,104,0.7)',l:'— TRADE',dash:false},
+    {c:'rgba(200,168,76,0.5)',l:'— ALLIANCE',dash:true},
+    {c:'rgba(232,72,72,0.5)',l:'-- CONFLICT',dash:true},
+    {c:'rgba(160,232,112,0.6)',l:'○ REGROWTH',dash:false},
+  ];
   leg.forEach((l,i)=>{
     if(i===1||i===2) wctx.setLineDash([4,3]); else wctx.setLineDash([]);
     wctx.strokeStyle=l.c;wctx.lineWidth=2;
@@ -1249,199 +1591,128 @@ function drawWorld(){
   });
 }
 
+renderLoop();
+
 wc.addEventListener('click',e=>{
   const rect=wc.getBoundingClientRect();
   const mx=e.clientX-rect.left,my=e.clientY-rect.top;
   let best=null,minD=Infinity;
   S.regions.forEach(r=>{const d=Math.hypot(mx-r.x*wc.width,my-r.y*wc.height);if(d<minD){minD=d;best=r;}});
-  if(best&&minD<80){S.selectedId=best.id;buildOvCards();buildMibPanels();drawWorld();}
+  if(best&&minD<80){
+    S.selectedId=best.id;
+    spawnRipple(best.x*wc.width,best.y*wc.height,best.color);
+    buildOvCards();buildMibPanels();
+  }
 });
 
+// ── EVENT FLASH ──
+function triggerFlash(color){
+  const el=document.getElementById('event-flash');
+  el.style.background=color;
+  el.style.animation='none';void el.offsetWidth;
+  el.style.animation='flashAnim 0.6s ease forwards';
+}
+
+// ── TOAST ──
+let toastTimer=null;
+function showToast(msg,color){
+  const existing=document.querySelector('.event-toast');
+  if(existing) existing.remove();
+  const el=document.createElement('div');
+  el.className='event-toast';
+  el.style.borderColor=hexA(color,0.5);
+  el.style.color=color;
+  el.innerHTML=`<span style="font-size:14px">${msg}</span>`;
+  document.body.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),350);},2200);
+}
+
 // ── GRAPH ──
-let graphVisible = false;
+let graphVisible=false;
 function toggleGraph(){
-  graphVisible = !graphVisible;
-  const overlay = document.getElementById('graph-overlay');
-  const btn = document.getElementById('btn-graph');
-  overlay.style.display = graphVisible ? 'flex' : 'none';
-  overlay.style.flexDirection = graphVisible ? 'column' : '';
-  btn.textContent = graphVisible ? '🗺 SHOW MAP' : '📈 SHOW GRAPH';
-  btn.style.color = graphVisible ? 'var(--gold)' : '';
-  btn.style.borderColor = graphVisible ? 'var(--gold)' : '';
+  graphVisible=!graphVisible;
+  const overlay=document.getElementById('graph-overlay');
+  const btn=document.getElementById('btn-graph');
+  overlay.style.display=graphVisible?'flex':'none';
+  overlay.style.flexDirection=graphVisible?'column':'';
+  btn.textContent=graphVisible?'🗺 SHOW MAP':'📈 SHOW GRAPH';
+  btn.style.color=graphVisible?'var(--gold)':'';
+  btn.style.borderColor=graphVisible?'var(--gold)':'';
   if(graphVisible) drawGraph();
 }
 
 function drawGraph(){
   if(!graphVisible) return;
-  const gc = document.getElementById('graphCanvas');
-  if(!gc) return;
-  const parent = gc.parentElement;
-  gc.width = parent.clientWidth;
-  gc.height = parent.clientHeight;
-  const ctx = gc.getContext('2d');
-  const W = gc.width, H = gc.height;
-  if(W <= 0 || H <= 0) return;
-
+  const gc=document.getElementById('graphCanvas');if(!gc) return;
+  const parent=gc.parentElement;
+  gc.width=parent.clientWidth;gc.height=parent.clientHeight;
+  const ctx=gc.getContext('2d');const W=gc.width,H=gc.height;
+  if(W<=0||H<=0) return;
   ctx.clearRect(0,0,W,H);
-
-  // Background
-  ctx.fillStyle = 'rgba(8,11,20,0.9)';
-  ctx.fillRect(0,0,W,H);
-
-  const PAD = {top:20, right:20, bottom:40, left:60};
-  const cW = W - PAD.left - PAD.right;
-  const cH = H - PAD.top - PAD.bottom;
-
-  if(S.econHistory.length < 2){
-    ctx.fillStyle = 'rgba(48,68,88,0.8)';
-    ctx.font = `14px var(--font-ui,'Cinzel',serif)`;
-    ctx.textAlign = 'center';
-    ctx.fillText('Run simulation to populate graph...', W/2, H/2);
-    return;
+  ctx.fillStyle='rgba(8,11,20,0.9)';ctx.fillRect(0,0,W,H);
+  const PAD={top:20,right:20,bottom:40,left:60};
+  const cW=W-PAD.left-PAD.right,cH=H-PAD.top-PAD.bottom;
+  if(S.econHistory.length<2){
+    ctx.fillStyle='rgba(48,68,88,0.8)';ctx.font=`14px 'Cinzel',serif`;ctx.textAlign='center';
+    ctx.fillText('Run simulation to populate graph...',W/2,H/2);return;
   }
-
-  // Compute value range
-  const allVals = S.econHistory.flatMap(h=>h.pts);
-  const minV = Math.max(0, Math.min(...allVals) - 20);
-  const maxV = Math.max(...allVals) + 30;
-  const range = maxV - minV || 1;
-
-  // Grid lines + Y labels
-  const gridCount = 5;
-  for(let i=0; i<=gridCount; i++){
-    const y = PAD.top + cH - (i/gridCount)*cH;
-    const val = minV + (i/gridCount)*range;
-    ctx.strokeStyle = 'rgba(24,38,58,0.8)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left+cW, y); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(48,68,88,0.9)';
-    ctx.font = `10px 'Share Tech Mono',monospace`;
-    ctx.textAlign = 'right';
-    ctx.fillText(Math.round(val), PAD.left-6, y+4);
+  const allVals=S.econHistory.flatMap(h=>h.pts);
+  const minV=Math.max(0,Math.min(...allVals)-20),maxV=Math.max(...allVals)+30,range=maxV-minV||1;
+  for(let i=0;i<=5;i++){
+    const y=PAD.top+cH-(i/5)*cH,val=minV+(i/5)*range;
+    ctx.strokeStyle='rgba(24,38,58,0.8)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(PAD.left+cW,y);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(48,68,88,0.9)';ctx.font=`10px 'Share Tech Mono',monospace`;ctx.textAlign='right';
+    ctx.fillText(Math.round(val),PAD.left-6,y+4);
   }
-
-  // X labels (cycle numbers)
-  const xTickCount = Math.min(8, S.econHistory.length);
-  for(let i=0; i<=xTickCount; i++){
-    const idx = Math.round((i/xTickCount)*(S.econHistory.length-1));
-    const x = PAD.left + (idx/(S.econHistory.length-1))*cW;
-    const cyc = S.econHistory[idx]?.cycle ?? 0;
-    ctx.fillStyle = 'rgba(48,68,88,0.9)';
-    ctx.font = `10px 'Share Tech Mono',monospace`;
-    ctx.textAlign = 'center';
-    ctx.fillText(cyc, x, PAD.top+cH+18);
-    ctx.strokeStyle = 'rgba(24,38,58,0.5)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, PAD.top+cH); ctx.lineTo(x, PAD.top+cH+5); ctx.stroke();
+  const xTickCount=Math.min(8,S.econHistory.length);
+  for(let i=0;i<=xTickCount;i++){
+    const idx=Math.round((i/xTickCount)*(S.econHistory.length-1));
+    const x=PAD.left+(idx/(S.econHistory.length-1))*cW;
+    const cyc=(S.econHistory[idx] && S.econHistory[idx].cycle) || 0;
+    ctx.fillStyle='rgba(48,68,88,0.9)';ctx.font=`10px 'Share Tech Mono',monospace`;ctx.textAlign='center';
+    ctx.fillText(cyc,x,PAD.top+cH+18);
+    ctx.strokeStyle='rgba(24,38,58,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x,PAD.top+cH);ctx.lineTo(x,PAD.top+cH+5);ctx.stroke();
   }
-
-  // Axis labels
-  ctx.fillStyle = 'rgba(80,110,140,0.8)';
-  ctx.font = `11px 'Cinzel',serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText('CYCLE', PAD.left + cW/2, H-4);
-  ctx.save();
-  ctx.translate(14, PAD.top + cH/2);
-  ctx.rotate(-Math.PI/2);
-  ctx.fillText('ECONOMY PTS', 0, 0);
-  ctx.restore();
-
-  // Collapse & regrowth event markers
-  S.regions.forEach(r=>{
-    if(r.collapseCycle > 0){
-      const idx = S.econHistory.findIndex(h=>h.cycle >= r.collapseCycle);
-      if(idx >= 0){
-        const x = PAD.left + (idx/(S.econHistory.length-1))*cW;
-        ctx.strokeStyle = hexA(r.color, 0.3);
-        ctx.lineWidth = 1; ctx.setLineDash([2,3]);
-        ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+cH); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = hexA(r.color, 0.5);
-        ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('💀', x, PAD.top+8);
-      }
-    }
-    if(r.regrowthCycle > 0){
-      const idx = S.econHistory.findIndex(h=>h.cycle >= r.regrowthCycle);
-      if(idx >= 0){
-        const x = PAD.left + (idx/(S.econHistory.length-1))*cW;
-        ctx.strokeStyle = 'rgba(160,232,112,0.25)';
-        ctx.lineWidth = 1; ctx.setLineDash([2,3]);
-        ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+cH); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('🌱', x, PAD.top+8);
-      }
-    }
-  });
-
-  // Draw each region's economy line with gradient fill underneath
+  ctx.fillStyle='rgba(80,110,140,0.8)';ctx.font=`11px 'Cinzel',serif`;ctx.textAlign='center';
+  ctx.fillText('CYCLE',PAD.left+cW/2,H-4);
+  ctx.save();ctx.translate(14,PAD.top+cH/2);ctx.rotate(-Math.PI/2);ctx.fillText('ECONOMY PTS',0,0);ctx.restore();
   S.regions.forEach((r,ri)=>{
-    if(S.econHistory.length < 2) return;
-    const pts = S.econHistory.map((h,i)=>({
-      x: PAD.left + (i/(S.econHistory.length-1))*cW,
-      y: PAD.top + cH - ((h.pts[ri]-minV)/range)*cH
-    }));
-
-    // Gradient fill under line
-    const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top+cH);
-    grad.addColorStop(0, hexA(r.color, 0.25));
-    grad.addColorStop(1, hexA(r.color, 0.01));
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.moveTo(pts[0].x, PAD.top+cH);
-    pts.forEach(p=>ctx.lineTo(p.x,p.y));
-    ctx.lineTo(pts[pts.length-1].x, PAD.top+cH);
-    ctx.closePath(); ctx.fill();
-
-    // Line
-    ctx.strokeStyle = r.alive ? r.color : hexA(r.color, 0.4);
-    ctx.lineWidth = r.alive ? 2.5 : 1.5;
-    ctx.lineJoin = 'round';
-    ctx.setLineDash(r.alive ? [] : [4,3]);
-    ctx.beginPath();
-    pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Endpoint dot + value label
-    const last = pts[pts.length-1];
-    ctx.fillStyle = r.color;
-    ctx.beginPath(); ctx.arc(last.x, last.y, 4, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = 'rgba(6,8,16,0.9)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(last.x, last.y, 4, 0, Math.PI*2); ctx.stroke();
-
-    // Value label at end
-    const lastVal = S.econHistory[S.econHistory.length-1].pts[ri];
-    ctx.fillStyle = r.color;
-    ctx.font = `bold 10px 'Cinzel',serif`;
-    ctx.textAlign = last.x > PAD.left+cW*0.85 ? 'right' : 'left';
-    const lx = last.x > PAD.left+cW*0.85 ? last.x-7 : last.x+7;
-    ctx.fillText(Math.round(lastVal), lx, last.y-6);
+    if(S.econHistory.length<2) return;
+    const pts=S.econHistory.map((h,i)=>({x:PAD.left+(i/(S.econHistory.length-1))*cW,y:PAD.top+cH-((h.pts[ri]-minV)/range)*cH}));
+    const grad=ctx.createLinearGradient(0,PAD.top,0,PAD.top+cH);
+    grad.addColorStop(0,hexA(r.color,0.25));grad.addColorStop(1,hexA(r.color,0.01));
+    ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(pts[0].x,PAD.top+cH);
+    pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(pts[pts.length-1].x,PAD.top+cH);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=r.alive?r.color:hexA(r.color,0.4);ctx.lineWidth=r.alive?2.5:1.5;
+    ctx.lineJoin='round';ctx.setLineDash(r.alive?[]:[4,3]);
+    ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.stroke();ctx.setLineDash([]);
+    const last=pts[pts.length-1];
+    ctx.fillStyle=r.color;ctx.beginPath();ctx.arc(last.x,last.y,4,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(6,8,16,0.9)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(last.x,last.y,4,0,Math.PI*2);ctx.stroke();
+    const lastVal=S.econHistory[S.econHistory.length-1].pts[ri];
+    ctx.fillStyle=r.color;ctx.font=`bold 10px 'Cinzel',serif`;
+    ctx.textAlign=last.x>PAD.left+cW*0.85?'right':'left';
+    ctx.fillText(Math.round(lastVal),last.x>PAD.left+cW*0.85?last.x-7:last.x+7,last.y-6);
   });
-
-  // Legend
-  const legend = document.getElementById('graph-legend');
-  if(legend.children.length === 0){
+  const legend=document.getElementById('graph-legend');
+  if(legend.children.length===0){
     S.regions.forEach(r=>{
-      const chip = document.createElement('div');
-      chip.style.cssText = `display:flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-size:10px;color:${r.color};`;
-      chip.innerHTML = `<span style="width:20px;height:2.5px;background:${r.color};border-radius:2px;display:inline-block"></span>${r.name}`;
+      const chip=document.createElement('div');
+      chip.style.cssText=`display:flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-size:10px;color:${r.color};`;
+      chip.innerHTML=`<span style="width:20px;height:2.5px;background:${r.color};border-radius:2px;display:inline-block"></span>${r.name}`;
       legend.appendChild(chip);
     });
   }
-
-  // Bottom stats bar
-  const statsEl = document.getElementById('graph-stats');
-  statsEl.innerHTML = S.regions.map(r=>{
-    const pl = phaseLabel(r);
-    const lastPts = Math.round(r.econPts);
-    return `<div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.4);border:1px solid ${hexA(r.color,0.3)};border-radius:6px;padding:6px 12px;">
+  const statsEl=document.getElementById('graph-stats');
+  statsEl.innerHTML=S.regions.map(r=>{
+    const pl=phaseLabel(r);
+    return `<div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.4);border:1px solid ${hexA(r.color,0.3)};border-radius:6px;padding:6px 12px;transition:all 0.3s">
       <span style="width:8px;height:8px;border-radius:50%;background:${r.color};flex-shrink:0;display:inline-block"></span>
       <span style="font-family:'Cinzel',serif;font-size:11px;color:${r.color};font-weight:700">${r.short}</span>
-      <span style="font-family:'Cinzel',serif;font-size:14px;color:${r.color};font-weight:900">${lastPts}</span>
+      <span style="font-family:'Cinzel',serif;font-size:14px;color:${r.color};font-weight:900">${Math.round(r.econPts)}</span>
       <span style="font-size:10px;color:${r.econDelta>=0?'var(--ok)':'var(--danger)'};font-family:'Rajdhani',sans-serif">${r.econDelta>=0?'▲':'▼'}${Math.abs(Math.round(r.econDelta))}</span>
       <span style="font-size:10px;color:${pl.col};font-family:'Rajdhani',sans-serif">${pl.txt}</span>
     </div>`;
@@ -1474,23 +1745,27 @@ function showTab(id,el){
 const SPEEDS=[600,200,70],SPEED_LABELS=['1×','3×','8×'];let speedIdx=0;
 function cycleSpeed(){
   speedIdx=(speedIdx+1)%SPEEDS.length;
-  document.getElementById('speed-lbl').textContent=SPEED_LABELS[speedIdx];
+  const lbl=document.getElementById('speed-lbl');
+  lbl.textContent=SPEED_LABELS[speedIdx];
+  lbl.style.transform='scale(1.4)';setTimeout(()=>lbl.style.transform='scale(1)',200);
+  lbl.style.transition='transform 0.2s cubic-bezier(0.34,1.56,0.64,1)';
   if(S.running){clearTimeout(S.timer);schedNext();}
 }
 function schedNext(){if(!S.running)return;S.timer=setTimeout(()=>{simStep();schedNext();},SPEEDS[speedIdx]);}
 function toggleSim(){S.running?stopSim():startSim();}
 function startSim(){
   S.running=true;
-  document.getElementById('btn-start').textContent='⏸ PAUSE';
-  document.getElementById('btn-start').className='btn danger';
+  const btn=document.getElementById('btn-start');
+  btn.textContent='⏸ PAUSE';btn.className='btn danger';
   document.getElementById('sim-status-lbl').textContent='RUNNING';
   document.getElementById('sim-dot').style.background='var(--ok)';
+  document.getElementById('sim-dot').style.color='var(--ok)';
   schedNext();
 }
 function stopSim(){
   S.running=false;clearTimeout(S.timer);
-  document.getElementById('btn-start').textContent='▶ BEGIN';
-  document.getElementById('btn-start').className='btn primary';
+  const btn=document.getElementById('btn-start');
+  btn.textContent='▶ BEGIN';btn.className='btn primary';
   document.getElementById('sim-status-lbl').textContent='PAUSED';
   document.getElementById('sim-dot').style.background='var(--warn)';
 }
@@ -1501,11 +1776,11 @@ function resetSim(){
   document.getElementById('ana-inner').innerHTML='<div class="ins-card"><div class="ins-bd" style="padding:20px;color:var(--dim);font-size:13px">Start the simulation to generate strategic analysis...</div></div>';
   document.getElementById('sim-status-lbl').textContent='STANDBY';
   document.getElementById('sim-dot').style.background='var(--dim)';
-  updateUI();drawWorld();
+  updateUI();
 }
 
 // ── INIT ──
-updateUI();drawWorld();
+updateUI();
 </script>
 </body>
 </html>
