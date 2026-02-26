@@ -1,0 +1,78 @@
+import React, { useMemo } from 'react';
+import { useWorldStore } from '../store/useWorldStore';
+import { REGIONS } from './WorldMap';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart3 } from 'lucide-react';
+
+export function AnalyticsGraph() {
+  const { regionHistory, selectedRegion } = useWorldStore();
+
+  const data = useMemo(() => {
+    return regionHistory.map(entry => {
+      const dataPoint: any = { step: entry.step };
+      if (selectedRegion !== null) {
+        const region = entry.regions.find(r => r.id === selectedRegion);
+        if (region) {
+          dataPoint.water = region.resources.water;
+          dataPoint.land = region.resources.land;
+          dataPoint.food = region.resources.food;
+          dataPoint.energy = region.resources.energy;
+        }
+      } else {
+        // Global averages or totals
+        let totalWater = 0, totalLand = 0, totalFood = 0, totalEnergy = 0;
+        entry.regions.forEach(r => {
+          totalWater += r.resources.water;
+          totalLand += r.resources.land;
+          totalFood += r.resources.food;
+          totalEnergy += r.resources.energy;
+        });
+        dataPoint.water = totalWater;
+        dataPoint.land = totalLand;
+        dataPoint.food = totalFood;
+        dataPoint.energy = totalEnergy;
+      }
+      return dataPoint;
+    });
+  }, [regionHistory, selectedRegion]);
+
+  const regionName = selectedRegion !== null ? REGIONS.find(r => r.id === selectedRegion)?.name : 'Global';
+
+  return (
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="p-4 border-b border-slate-800/50 bg-slate-900/50 sticky top-0 z-10">
+        <h2 className="text-lg font-semibold tracking-tight text-slate-100 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-indigo-400" />
+          {regionName} Analytics
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Resource trends over time</p>
+      </div>
+
+      <div className="flex-1 p-6 min-h-[300px]">
+        {data.length < 2 ? (
+          <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+            Waiting for more data points...
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="step" stroke="#475569" fontSize={12} tickMargin={10} />
+              <YAxis stroke="#475569" fontSize={12} tickFormatter={(val) => Math.round(val).toString()} />
+              <Tooltip 
+                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
+                itemStyle={{ fontSize: '12px' }}
+                labelStyle={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}
+              />
+              <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+              <Line type="monotone" dataKey="water" name="Water" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="land" name="Land" stroke="#84cc16" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="food" name="Food" stroke="#eab308" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="energy" name="Energy" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
