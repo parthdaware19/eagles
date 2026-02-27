@@ -1,0 +1,104 @@
+frontend/
+: Contains the client-side user interface.
+index.html
+: A monolithic frontend application. It contains all the HTML layout, vanilla CSS styling (animations, modal boxes), and the JavaScript required to connect to the backend, render the animated canvas grid, visually represent "Realms" (The North, Valyria, etc.), and process incoming JSON state updates into visual graphs and logs.
+map.png
+ (optional/removed): An image used previously as a geographical background for the canvas to map abstract nodes to real-world continents.
+backend/
+: Contains the Python-based simulation engine, API server, and Machine Learning agents.
+run.bat
+: A Windows batch script to quickly start the FastAPI server using Uvicorn.
+server/: Manages network communication.
+main.py
+: The FastAPI web server. It handles routing, serves the frontend static files, exposes REST endpoints (e.g., /event for God Mode), and importantly, manages the WebSockets (/ws) connection pushing real-time simulation cycles to the frontend.
+env/: The Core Simulation Engine.
+world_env.py
+: The heart of the simulation. This defines the rules of the world. It manages the mathematical state of all 5 realms (resources, population, economy, climate). It executes actions (Trade, Raid, Defend) modifying these stats, triggering randomized climate events (Droughts), logging histories, and determining if a realm "collapses" from resource starvation.
+agents/: Contains the AI/Reinforcement Learning models.
+train.py
+: A standalone script that runs thousands of simulated cycles in 'headless' mode (without a UI) to construct and save "Q-Tables" representing optimal strategies.
+models/qtables.json: The exported "brain" of the AI, containing pre-calculated probabilities of which actions are best to take in any given state.
+🔌 2. How the Frontend and Backend Connect
+The system utilizes a hybrid approach: WebSockets for continuous real-time streaming, and REST POST requests for distinct, singular commands.
+
+The Pulse (WebSocket ws://localhost:8000/ws):
+
+Once the user opens the frontend (
+index.html
+), JavaScript establishes a persistent WebSocket connection to the Python backend (
+main.py
+).
+world_env.py
+ has a background async loop that calculates a new simulation "cycle" (or "step") X times per second (determined by the timeline speed control).
+After computing the math for that cycle, the backend packages the entire exact state of the world (all region stats, populations, active events) into a JSON payload and broadcasts it over the WebSocket.
+The frontend's ws.onmessage listener receives this JSON, overwrites its local state, and instantly re-renders the DOM, Canvas UI, and Graphs to reflect the new numbers.
+The Commands (REST APIs):
+
+When the user clicks "Play", "Pause", or triggers a "Divine Event" (like a Plague via God Mode), the frontend fires synchronous fetch() HTTP POST requests to the backend (e.g., /control, /event).
+The backend catches these, modifies the core env engine (e.g., slashing a region's population by 25%), and the subsequent WebSocket broadcast automatically updates the frontend with the newly inflicted damage.
+🧠 3. How the Model is Trained (Reinforcement Learning)
+The simulated AI realms do not behave randomly; they use a branch of Machine Learning called Q-Learning.
+
+Theoretical Concept
+Q-Learning is a value-based reinforcement learning algorithm. An "Agent" (a Realm) explores its Environment (
+world_env.py
+). It looks at its current State, chooses an Action, and receives a Reward (positive or negative). The goal of the agent is to maximize its total cumulative reward.
+
+Implementation Details (
+train.py
+ & 
+world_env.py
+)
+The State Space: The infinitely complex variables of a realm are heavily simplified ("discretized") into manageable buckets. For example, instead of tracking exact Food (42), it categorizes Food as simply Low, Medium, or High.
+A single State might look like: 
+(Food=Low, Water=Medium, Energy=High, NeighborRelation=Hostile)
+.
+The Actions: Agents only have 5 possible choices per turn:
+0 (Grow/Do Nothing), 1 (Trade Food/Water), 2 (Trade Tech/Energy), 3 (Raid/Attack), 4 (Defend/Shield).
+The Q-Table: The engine maintains a massive look-up table (models/qtables.json). Rows are States, Columns are Actions. The intersecting cells hold a Q-Value (the calculated expected reward of taking that action in that state).
+The Training Loop (
+train.py
+):
+The system spins up the environment and forces the agents to play thousands of games against each other.
+Exploration vs. Exploitation ($\epsilon$-greedy): Early on, agents pick completely random actions to discover what happens. Over time, they rely more on the Q-Table's highest values to exploit known good strategies.
+The Reward Function: If an agent chooses "Raid" and successfully steals resources, the environment returns a high positive reward (+10). If they Raid and hit a Defending neighbor, they lose population and sink their economy (-15).
+Bellman Equation: The Q-Table is constantly updated using the difference between the newly received reward and the old estimated reward, scaled by a Learning Rate ($\alpha$) and a Discount Factor ($\gamma$) which values immediate survival vs. long term stability.
+When you run the web app, the backend injects qtables.json into the world_env. When a cycle ticks, the Python backend literally looks up the current state of "The North" in the Q-table, picks the action with the highest mathematical Q-Value, and executes it.
+
+How Initial Training Runs
+Before the frontend is even opened, a developer runs python -m agents.train. This boots up a "faceless" version of the World Environment. The simulation immediately loops 500 times (episodes), with each episode running for up to 500 cycles (steps). At the start, the Q-Tables are mostly 0 with a slight random noise (e.g., [0.15, 0.30, 0.20... + random]). The learning relies heavily on the "Reward Function":
+
++7 to +10 Points: Successfully trading resources with an ally.
++5 Points: Successfully expanding or raiding a weak target.
++10 Points: Forming a brand new Alliance.
+Negative Points: Raiding someone who successfully defends, or running out of food. After millions of instant mathematical cycles, the optimal Q-Values settle and are permanently saved to qtables.json.
+📊 4. The Range of Resources & Limits
+The mathematical boundaries of 
+world_env.py
+ are strictly defined to force scarcity and dynamic gameplay.
+
+Core Metrics Ranges
+For every region (The North, Westerlands, Valyria, Riverlands, Iron Islands), resources are bounded vectors:
+
+Base Resources (Water, Food, Energy, Land): Values strictly clamped between 0.0 and 100.0.
+If any resource hits exactly 0.0, the region experiences severe penalties (famine, riots, military weakness).
+High extremes (near 100.0) trigger "abundance multipliers".
+Population: Starts between 100 and 300.
+Cap: Varies, but generally soft-capped around 500-1000 based on 'Land' constraints.
+Collapse Condition: If Population drops strictly below 10, the realm officially "Collapses" (game over for that node).
+Economic Points (econ_pts): Can run theoretically infinitely, but acts as a cumulative score measuring successful trades and stability. Usually ranges from 0 to several thousand.
+Climate Hits (climate_hits): An integer counter (0+) representing how many disasters a region has suffered. High numbers drastically reduce output efficiency.
+Resource Interactions & The Economy Point System
+Action Costs: Actions are not free. "Raiding" burns massive amounts of 'Energy' and 'Population' (soldiers), making it unsustainable back-to-back.
+Natural Decay/Growth: Every cycle, Food and Water naturally decrease based on Population consumption (e.g., -0.1 * Population). If Food drops below the consumption rate, Population begins to starve and die off mathematically.
+Trading Yields:
+To execute a trade, a Realm searches for the neighbor it has the highest Trust with.
+The Realm identifies its highest surplus resource (e.g., Food) and its lowest deficit resource (e.g., Energy).
+Trading is inherently profitable: The sender burns roughly 65% of an arbitrary amount from their surplus, but the receiver gets 50%. The sender then receives 55% of their deficit, while the receiver only loses 30%. This unequal "profitable math" encourages trading as a survival tactic.
+Economic Points (econ_pts): This is the "Scoreboard" of the simulation. A realm's Economic Delta per cycle is calculated dynamically:
+Having high Food, Water, and Energy yields massive passive points (+10 to +15 each).
+Starving yields severe negative points (-14).
+Trade Points: Having a high trade_count caps out at a massive +40 points per cycle.
+Alliance Points: Every active Alliance directly yields +18 points per cycle.
+Conflict Points (conflict_count): Being in a war actively strips -6 points per cycle and shatters alliances.
+Therefore, the AI quickly learns that the mathematical optimal route to a high econ_pts score is to secure massive alliances, which fuels massive passive trade counts, padding their score infinitely higher than Raiding.
